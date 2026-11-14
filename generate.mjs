@@ -49,7 +49,7 @@ async function generateAudio(postIndex, outputPath) {
   await runFfmpeg([
     '-f', 'lavfi', '-i', `aevalsrc='${terms}':s=44100:d=${dur}`,
     '-af', `aeval=val(0)*(${envelope}),afade=in:st=0:d=0.5,afade=out:st=${dur - 1.5}:d=1.5`,
-    '-c:a', 'aac', '-b:a', '128k', '-y', outputPath,
+    '-ac', '2', '-c:a', 'aac', '-b:a', '128k', '-y', outputPath,
   ]);
 }
 
