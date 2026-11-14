@@ -35,12 +35,12 @@ function getPostSlot() {
   const postNumber      = daysSinceStart * 2 + (isEvening ? 1 : 0);
   const problemIndex    = postNumber % PROBLEMS.length;
   const captionVariant  = Math.floor(postNumber / PROBLEMS.length) % CAPTION_TEMPLATES.length;
-  return { problemIndex, captionVariant };
+  return { problemIndex, captionVariant, postNumber };
 }
 
 async function main() {
   const days = daysUntilLaunch();
-  const { problemIndex, captionVariant } = getPostSlot();
+  const { problemIndex, captionVariant, postNumber } = getPostSlot();
   const problem = PROBLEMS[problemIndex];
 
   console.log('=== AlongXide Reel Generator ===');
@@ -54,7 +54,7 @@ async function main() {
 
   // Generate the video
   console.log('\n[1/2] Generating video...');
-  const videoPath = await generateReel(problem, days);
+  const videoPath = await generateReel(problem, days, postNumber);
 
   // Post to Instagram
   console.log('\n[2/2] Posting to Instagram...');
