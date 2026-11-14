@@ -81,7 +81,7 @@ export async function generateReel(problemText, daysUntilLaunch, postIndex = 0) 
   // ── Launch Puppeteer ──────────────────────────────────────────────────
   const browser = await puppeteer.launch({
     headless: true,
-    protocolTimeout: 120_000,
+    protocolTimeout: 300_000,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -102,6 +102,8 @@ export async function generateReel(problemText, daysUntilLaunch, postIndex = 0) 
   });
   await page.goto(`http://127.0.0.1:${port}/?${params}`, { waitUntil: 'networkidle0' });
   await page.evaluate(() => window.__ready);
+  // Let Chrome finish initial layout and paint before we start capturing frames
+  await new Promise(r => setTimeout(r, 1500));
 
   // ── Render frames ─────────────────────────────────────────────────────
   if (existsSync(FRAMES_DIR)) rmSync(FRAMES_DIR, { recursive: true });
@@ -116,6 +118,7 @@ export async function generateReel(problemText, daysUntilLaunch, postIndex = 0) 
     await page.screenshot({
       path: path.join(FRAMES_DIR, `${String(f).padStart(4, '0')}.png`),
       omitBackground: false,
+      timeout: 60_000,
     });
     if (f % 30 === 0) process.stdout.write(`\r  Rendering: ${f}/${FRAMES} frames`);
   }
