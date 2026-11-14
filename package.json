@@ -1,0 +1,13 @@
+{
+  "name": "alongxide-social",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node main.mjs",
+    "test-generate": "node generate.mjs \"Your runner took your money. And left.\" 20"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}

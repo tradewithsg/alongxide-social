@@ -1,0 +1,23 @@
+// 20 problems AlongXide solves — one per day, rotating for the full countdown.
+export const PROBLEMS = [
+  "You can't leave work to run an errand.",
+  "You sent someone. The wrong thing came back.",
+  "You paid upfront. The delivery never came.",
+  "The market is 45 minutes away. Your need is now.",
+  "Nobody knows which stall sells what you need.",
+  "Your runner won't send you a photo first.",
+  "The delivery fee costs more than the item.",
+  "You need a receipt. It never comes.",
+  "3 things from 3 markets. One very long day.",
+  "Your money leaves. The item doesn't.",
+  "Online says 5 days. You need it today.",
+  "2 hours. That's all the time you have.",
+  "The market closes at 6pm. You close at 7pm.",
+  "You don't know the fair price. You're overcharged.",
+  "Nigerian delivery still requires a leap of faith.",
+  "Your runner took your money. And left.",
+  "Out of stock. Nobody told you.",
+  "You have a runner. You can't reach them.",
+  "Running errands wastes your whole afternoon.",
+  "What you need is nearby. But unreachable alone.",
+];

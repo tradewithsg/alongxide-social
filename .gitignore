@@ -1,0 +1,4 @@
+node_modules/
+.frames/
+reel.mp4
+*.tmp

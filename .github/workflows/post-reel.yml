@@ -1,0 +1,37 @@
+name: Post AlongXide Reel
+
+on:
+  schedule:
+    # 09:00 AM WAT (UTC+1) = 08:00 UTC
+    - cron: '0 8 * * *'
+    # 07:00 PM WAT (UTC+1) = 18:00 UTC
+    - cron: '0 18 * * *'
+  # Trigger manually from GitHub UI for testing
+  workflow_dispatch:
+
+jobs:
+  post-reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies (includes Chromium via Puppeteer)
+        run: npm ci
+
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
+
+      - name: Generate and post reel
+        env:
+          IG_USER_ID:      ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node main.mjs
