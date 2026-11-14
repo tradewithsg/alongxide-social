@@ -42,9 +42,13 @@ async function generateAudio(postIndex, outputPath) {
   const p   = AUDIO_PATTERNS[postIndex % AUDIO_PATTERNS.length];
   const dur = DURATION + 1;
   const terms = p.freqs.map((f, i) => `${p.vols[i]}*sin(2*PI*${f}*t)`).join('+');
+  const lo  = (1 - p.depth).toFixed(2);
+  const hi  = p.depth.toFixed(2);
+  // aeval is universally available; replicates atremolo by modulating amplitude with abs(sin)
+  const envelope = `${lo}+${hi}*abs(sin(2*PI*${p.hz}*t))`;
   await runFfmpeg([
     '-f', 'lavfi', '-i', `aevalsrc='${terms}':s=44100:d=${dur}`,
-    '-af', `atremolo=f=${p.hz}:d=${p.depth},afade=in:st=0:d=0.5,afade=out:st=${dur - 1.5}:d=1.5`,
+    '-af', `aeval=val(0)*(${envelope}),afade=in:st=0:d=0.5,afade=out:st=${dur - 1.5}:d=1.5`,
     '-c:a', 'aac', '-b:a', '128k', '-y', outputPath,
   ]);
 }
