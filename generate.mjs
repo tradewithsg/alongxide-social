@@ -48,9 +48,11 @@ export async function generateReel(problemText, daysUntilLaunch) {
   // ── Launch Puppeteer ──────────────────────────────────────────────────
   const browser = await puppeteer.launch({
     headless: true,
+    protocolTimeout: 120_000,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--disable-gpu',
       '--hide-scrollbars',
       '--force-color-profile=srgb',
       '--font-render-hinting=none',
