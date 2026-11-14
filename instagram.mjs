@@ -3,7 +3,7 @@
  * Tries Trial Reel first; falls back to regular Reel.
  */
 
-import { createReadStream, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 
 const IG_USER_ID   = process.env.IG_USER_ID;
 const ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN;
@@ -28,17 +28,17 @@ async function initContainer(caption, trialReel = false) {
 }
 
 async function uploadVideo(uri, videoPath) {
-  const size   = statSync(videoPath).size;
-  const stream = createReadStream(videoPath);
+  const buffer = readFileSync(videoPath);
+  const size   = buffer.length;
   const res = await fetch(uri, {
     method: 'POST',
     headers: {
-      Authorization: `OAuth ${ACCESS_TOKEN}`,
-      offset:        '0',
-      file_size:     String(size),
+      Authorization:    `OAuth ${ACCESS_TOKEN}`,
+      offset:           '0',
+      file_size:        String(size),
+      'X-Entity-Length': String(size),
     },
-    body: stream,
-    duplex: 'half',
+    body: buffer,
   });
   if (!res.ok) {
     const text = await res.text();
