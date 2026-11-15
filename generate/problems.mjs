@@ -1,4 +1,4 @@
-// 20 problems AlongXide solves — one per day, rotating for the full countdown.
+// 44 problems AlongXide solves — 2 per day, covers full 22-day campaign without repeating.
 export const PROBLEMS = [
   "You can't leave work to run an errand.",
   "You sent someone. The wrong thing came back.",
@@ -20,6 +20,30 @@ export const PROBLEMS = [
   "You have a runner. You can't reach them.",
   "Running errands wastes your whole afternoon.",
   "What you need is nearby. But unreachable alone.",
+  "You need medicine. You can't leave your desk.",
+  "You described it perfectly. They still got it wrong.",
+  "The queue at the market is longer than your lunch break.",
+  "You can't find a trusted person to send on errands.",
+  "Your food order sat at the gate for 45 minutes.",
+  "You forgot something last minute. No time to go back.",
+  "Three floors of a market. One very exhausting trip.",
+  "The ₦20,000 you sent. Gone. No refund. No receipts.",
+  "You need lunch. But leaving the office costs an hour.",
+  "You needed it yesterday. Logistics failed you again.",
+  "The delivery person doesn't know the area.",
+  "You can't track where your package is right now.",
+  "You trusted someone. They trusted someone else. Item is lost.",
+  "Market day crowds turn 10 minutes into 2 hours.",
+  "You need something done. Everyone you know is busy.",
+  "Your order arrived incomplete. Nobody picked up the phone.",
+  "You manage a team. You still run your own errands.",
+  "You need something urgently. Zero reliable options.",
+  "You moved to a new area. You don't know the markets.",
+  "You ordered food. It arrived cold. The runner was lost.",
+  "You can't negotiate at the market because you're not there.",
+  "Your runner doesn't know what 'fresh' means to you.",
+  "You have everything sorted. Except the errand part.",
+  "One simple errand. Three hours later, still not done.",
 ];
 
 // Paired solutions — one for each problem above.
@@ -44,9 +68,33 @@ export const SOLUTIONS = [
   "Live chat with your runner. Always.",
   "Get your afternoon back. Use AlongXide.",
   "We bridge that gap for you.",
+  "Order from anywhere. We deliver to your desk.",
+  "We confirm every detail before we move.",
+  "Skip the queue. We handle market visits.",
+  "Every AlongXide runner is verified and trusted.",
+  "Live tracking means no waiting at the gate.",
+  "Last-minute? We dispatch a runner in minutes.",
+  "Multi-floor, multi-stop. All in one order.",
+  "Every naira is protected. Full accountability.",
+  "Lunch delivered to your desk. Zero office trips.",
+  "Same-day dispatch, every day, no exceptions.",
+  "Our runners know every route in the city.",
+  "Real-time GPS tracking. Know exactly where it is.",
+  "Direct, accountable runners. No third-party confusion.",
+  "We navigate the market so you never have to.",
+  "AlongXide is always available. Always ready.",
+  "Photo updates at every step. Full transparency.",
+  "Delegate your errands. Focus on what matters.",
+  "Urgent? We respond fast every time.",
+  "We know every market in Benin City and Abuja.",
+  "Insulated bags. Live tracking. Food arrives right.",
+  "Chat with your runner in real time to negotiate.",
+  "Detailed instructions confirmed before purchase.",
+  "AlongXide handles the errand part. Always.",
+  "One tap. Done. AlongXide makes it that simple.",
 ];
 
-// 10 feature highlights for noon posts.
+// 10 feature highlights for afternoon photo posts.
 export const FEATURES = [
   { title: "Real-Time\nRunner Tracking",   desc: "Watch your runner navigate live, every step of the way." },
   { title: "Photo Before\nEvery Purchase", desc: "See it before they buy it. Every single time, no exceptions." },

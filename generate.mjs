@@ -223,6 +223,7 @@ export async function generateReel(problemText, solutionText, daysUntilLaunch, p
     problem:  problemText,
     solution: solutionText,
     days:     String(daysUntilLaunch),
+    style:    String(postIndex % 4),
     t2: T2.toFixed(2),
     t3: T3.toFixed(2),
     t4: T4.toFixed(2),
