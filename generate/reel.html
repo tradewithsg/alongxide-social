@@ -19,11 +19,7 @@
     }
 
     /* ── Background ── */
-    #bg {
-      position: absolute;
-      inset: 0;
-      background: #05110C;
-    }
+    #bg { position: absolute; inset: 0; background: #05110C; }
     #glow1 {
       position: absolute;
       width: 960px; height: 960px; border-radius: 50%;
@@ -53,8 +49,8 @@
       opacity: 0;
     }
 
-    /* ── Phase 1: Problem ── */
-    #phase-problem {
+    /* ── Shared phase styles ── */
+    .phase {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
@@ -63,7 +59,7 @@
       padding: 100px 90px;
       opacity: 0;
     }
-    #problem-tag {
+    .phase-tag {
       display: inline-flex;
       align-items: center;
       gap: 14px;
@@ -76,14 +72,14 @@
       opacity: 0;
       transform: translateX(-50px);
     }
-    #problem-dot {
+    .phase-dot {
       flex-shrink: 0;
       width: 10px; height: 10px;
       border-radius: 50%;
       background: #3DCB92;
       box-shadow: 0 0 0 5px rgba(61,203,146,.22);
     }
-    #problem-divider {
+    .phase-divider {
       height: 1.5px;
       background: linear-gradient(90deg, #3DCB92 0%, rgba(61,203,146,.08) 100%);
       margin-bottom: 52px;
@@ -91,6 +87,8 @@
       transform: scaleX(0);
       opacity: 0;
     }
+
+    /* ── Phase 1: Problem text ── */
     #problem-text {
       font-weight: 800;
       line-height: 1.13;
@@ -100,7 +98,17 @@
       transform: translateY(36px);
     }
 
-    /* ── Phase 2: Countdown ── */
+    /* ── Phase 2: Solution text ── */
+    #solution-text {
+      font-weight: 800;
+      line-height: 1.13;
+      letter-spacing: -.025em;
+      color: #3DCB92;
+      opacity: 0;
+      transform: translateY(36px);
+    }
+
+    /* ── Phase 3: Countdown ── */
     #phase-countdown {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -108,7 +116,6 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0;
       opacity: 0;
     }
     #days-num {
@@ -142,7 +149,7 @@
       opacity: 0;
     }
 
-    /* ── Phase 3: Brand (bottom) ── */
+    /* ── Phase 4: Brand ── */
     #phase-brand {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -203,20 +210,27 @@
   </div>
 
   <!-- Phase 1: Problem -->
-  <div id="phase-problem">
-    <div id="problem-tag"><div id="problem-dot"></div>The Problem</div>
-    <div id="problem-divider"></div>
+  <div id="phase-problem" class="phase">
+    <div id="problem-tag" class="phase-tag"><div class="phase-dot"></div>The Problem</div>
+    <div id="problem-divider" class="phase-divider"></div>
     <div id="problem-text">PROBLEM_TEXT</div>
   </div>
 
-  <!-- Phase 2: Countdown -->
+  <!-- Phase 2: Solution -->
+  <div id="phase-solution" class="phase">
+    <div id="solution-tag" class="phase-tag"><div class="phase-dot"></div>AlongXide Solves This</div>
+    <div id="solution-divider" class="phase-divider"></div>
+    <div id="solution-text">SOLUTION_TEXT</div>
+  </div>
+
+  <!-- Phase 3: Countdown -->
   <div id="phase-countdown">
     <div id="days-num">20</div>
     <div id="days-unit">Days To Go</div>
     <div id="days-until">Until AlongXide</div>
   </div>
 
-  <!-- Phase 3: Brand -->
+  <!-- Phase 4: Brand -->
   <div id="phase-brand">
     <div id="brand-chip"><div id="brand-chip-dot"></div>Launching Dec 4</div>
     <div id="brand-logo">Along<span class="x">X</span>ide</div>
@@ -224,18 +238,22 @@
   </div>
 
   <script>
-    // Inject problem text and days count from URL params
     const q = new URLSearchParams(location.search);
-    const problemText = q.get('problem') || 'THE PROBLEM';
-    const daysCount = q.get('days') || '20';
+    const problemText  = q.get('problem')  || 'THE PROBLEM';
+    const solutionText = q.get('solution') || 'THE SOLUTION';
+    const daysCount    = q.get('days')     || '20';
 
-    document.getElementById('problem-text').textContent = problemText;
-    document.getElementById('days-num').textContent = daysCount;
+    document.getElementById('problem-text').textContent  = problemText;
+    document.getElementById('solution-text').textContent = solutionText;
+    document.getElementById('days-num').textContent      = daysCount;
 
-    // Auto-size problem text by character length
-    const len = problemText.length;
-    document.getElementById('problem-text').style.fontSize =
-      (len < 32 ? 92 : len < 46 ? 80 : len < 60 ? 70 : 60) + 'px';
+    // Auto-size by character length
+    const autoSize = (el, text) => {
+      const len = text.length;
+      el.style.fontSize = (len < 32 ? 92 : len < 46 ? 80 : len < 60 ? 70 : 60) + 'px';
+    };
+    autoSize(document.getElementById('problem-text'),  problemText);
+    autoSize(document.getElementById('solution-text'), solutionText);
 
     // ── Helpers ──────────────────────────────────────────────────────────
     const cl  = (x, lo=0, hi=1) => Math.max(lo, Math.min(hi, x));
@@ -248,72 +266,80 @@
       return 1 - Math.exp(-10 * t) * Math.cos(Math.sqrt(1 - 0.35*0.35) * 10 * t);
     };
     const mix = (a, b, t) => a + (b - a) * t;
-
-    const $ = id => document.getElementById(id);
+    const $   = id => document.getElementById(id);
 
     // ── Seek ─────────────────────────────────────────────────────────────
     window.seek = (ms) => {
       const t = ms / 1000;
 
-      // Background grid fades in
+      // Background grid
       $('grid').style.opacity = eio(n01(t, 0, 1));
 
-      // Glow drift (sinusoidal)
+      // Glow drift
       const d1 = Math.sin(t * 0.45) * 55;
       const d2 = Math.sin(t * 0.35 + 1.2) * 45;
       $('glow1').style.transform = `translate(${d1*0.5}px, ${d1}px)`;
       $('glow2').style.transform = `translate(${-d2*0.6}px, ${-d2*0.9}px)`;
 
-      // ── Phase 1: Problem (0-9s) ──────────────────────────────────────
-      const p1 = t < 1 ? eio(n01(t,.4,1)) : t < 8 ? 1 : 1 - eio(n01(t, 8, 9));
+      // ── Phase 1: Problem (0-7s) ──────────────────────────────────────
+      const p1 = t < 1 ? eio(n01(t, .4, 1)) : t < 6.5 ? 1 : 1 - eio(n01(t, 6.5, 7.2));
       $('phase-problem').style.opacity = p1;
 
-      // "THE PROBLEM" tag slides in from left
       const tagP = eio(n01(t, .8, 1.5));
       $('problem-tag').style.opacity = tagP;
       $('problem-tag').style.transform = `translateX(${mix(-55, 0, tagP)}px)`;
 
-      // Divider line extends
       const divP = eo(n01(t, 1.2, 2.1));
       $('problem-divider').style.opacity = divP;
       $('problem-divider').style.transform = `scaleX(${divP})`;
 
-      // Problem text fades up
       const txtP = eio(n01(t, 1.9, 3.0));
       $('problem-text').style.opacity = txtP;
       $('problem-text').style.transform = `translateY(${mix(36, 0, txtP)}px)`;
 
-      // ── Phase 2: Countdown (9-15s) ──────────────────────────────────
-      $('phase-countdown').style.opacity = eio(n01(t, 9.0, 9.5));
+      // ── Phase 2: Solution (6.5-11.5s) ───────────────────────────────
+      const p2 = t < 6.5 ? 0 : t < 7.2 ? eio(n01(t, 6.5, 7.2)) : t < 11.0 ? 1 : 1 - eio(n01(t, 11.0, 11.8));
+      $('phase-solution').style.opacity = p2;
 
-      // Days number drops in with spring
-      const numP = spr(n01(t, 9.0, 10.3));
+      const solTagP = eio(n01(t, 7.0, 7.8));
+      $('solution-tag').style.opacity = solTagP;
+      $('solution-tag').style.transform = `translateX(${mix(-55, 0, solTagP)}px)`;
+
+      const solDivP = eo(n01(t, 7.4, 8.3));
+      $('solution-divider').style.opacity = solDivP;
+      $('solution-divider').style.transform = `scaleX(${solDivP})`;
+
+      const solTxtP = eio(n01(t, 8.0, 9.2));
+      $('solution-text').style.opacity = solTxtP;
+      $('solution-text').style.transform = `translateY(${mix(36, 0, solTxtP)}px)`;
+
+      // ── Phase 3: Countdown (11-15s) ──────────────────────────────────
+      $('phase-countdown').style.opacity = eio(n01(t, 11.0, 11.5));
+
+      const numP = spr(n01(t, 11.0, 12.3));
       $('days-num').style.opacity = cl(numP * 2.5);
       $('days-num').style.transform = `translateY(${mix(-80, 0, cl(numP))}px)`;
 
-      // "DAYS TO GO" reveals
-      const unitP = eio(n01(t, 10.1, 10.8));
+      const unitP = eio(n01(t, 12.1, 12.8));
       $('days-unit').style.opacity = unitP;
       $('days-unit').style.letterSpacing = mix(0.05, 0.32, unitP) + 'em';
 
-      // "Until AlongXide"
-      $('days-until').style.opacity = eo(n01(t, 10.8, 11.5));
+      $('days-until').style.opacity = eo(n01(t, 12.8, 13.3));
 
-      // ── Phase 3: Brand (11.5-15s) ────────────────────────────────────
-      $('phase-brand').style.opacity = eio(n01(t, 11.5, 12.0));
+      // ── Phase 4: Brand (13-15s) ──────────────────────────────────────
+      $('phase-brand').style.opacity = eio(n01(t, 13.0, 13.5));
 
-      const chipP = eio(n01(t, 11.5, 12.3));
+      const chipP = eio(n01(t, 13.0, 13.8));
       $('brand-chip').style.opacity = chipP;
       $('brand-chip').style.transform = `translateY(${mix(20, 0, chipP)}px)`;
 
-      const logoP = eio(n01(t, 12.0, 12.9));
+      const logoP = eio(n01(t, 13.4, 14.2));
       $('brand-logo').style.opacity = logoP;
       $('brand-logo').style.transform = `translateY(${mix(16, 0, logoP)}px)`;
 
-      $('brand-date').style.opacity = eo(n01(t, 12.6, 13.4));
+      $('brand-date').style.opacity = eo(n01(t, 13.9, 14.6));
     };
 
-    // Initialise hidden, wait for fonts
     window.seek(0);
     window.__ready = document.fonts.ready.then(() => true);
   </script>

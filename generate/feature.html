@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #05110C;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background ── */
+    #bg { position: absolute; inset: 0; background: #05110C; }
+    #glow1 {
+      position: absolute;
+      width: 1100px; height: 1100px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(20,150,108,.32) 0%, transparent 60%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    #glow2 {
+      position: absolute;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,203,146,.18) 0%, transparent 70%);
+      top: 180px; right: -100px;
+    }
+    #glow3 {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(10,80,55,.22) 0%, transparent 70%);
+      bottom: 200px; left: -80px;
+    }
+    #grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 10%, transparent 80%);
+      mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 10%, transparent 80%);
+      opacity: 0;
+    }
+
+    /* ── Top brand pill ── */
+    #top-brand {
+      position: absolute;
+      top: 100px; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    #top-brand-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(61,203,146,.30);
+      background: rgba(61,203,146,.07);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      color: #3DCB92;
+      text-transform: uppercase;
+    }
+    #top-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #3DCB92;
+      box-shadow: 0 0 0 4px rgba(61,203,146,.25);
+    }
+
+    /* ── Center content ── */
+    #center {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 90px;
+    }
+
+    #spotlight-label {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .28em;
+      color: rgba(139,235,196,.55);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    #feature-title {
+      font-size: 96px;
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -.03em;
+      color: #fff;
+      text-align: center;
+      white-space: pre-line;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    #feature-title .accent { color: #3DCB92; }
+
+    #feature-bar {
+      width: 80px; height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #3DCB92 0%, rgba(61,203,146,.2) 100%);
+      margin: 48px 0;
+      transform: scaleX(0);
+      transform-origin: left;
+      opacity: 0;
+    }
+
+    #feature-desc {
+      font-size: 34px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: rgba(255,255,255,.65);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* ── Bottom brand ── */
+    #bottom-brand {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 0 90px 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      opacity: 0;
+    }
+    #brand-logo {
+      font-size: 64px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.03em;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    #brand-logo .x { color: #3DCB92; }
+    #brand-sub {
+      font-size: 21px;
+      font-weight: 500;
+      color: rgba(255,255,255,.45);
+      letter-spacing: .05em;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg">
+    <div id="glow1"></div>
+    <div id="glow2"></div>
+    <div id="glow3"></div>
+    <div id="grid"></div>
+  </div>
+
+  <div id="top-brand">
+    <div id="top-brand-inner"><div id="top-dot"></div>Feature Spotlight</div>
+  </div>
+
+  <div id="center">
+    <div id="spotlight-label">What we built for you</div>
+    <div id="feature-title">FEATURE_TITLE</div>
+    <div id="feature-bar"></div>
+    <div id="feature-desc">FEATURE_DESC</div>
+  </div>
+
+  <div id="bottom-brand">
+    <div id="brand-logo">Along<span class="x">X</span>ide</div>
+    <div id="brand-sub">Benin City · Abuja · Launching Dec 4</div>
+  </div>
+
+  <script>
+    const q = new URLSearchParams(location.search);
+    const featureTitle = q.get('title') || 'FEATURE';
+    const featureDesc  = q.get('desc')  || 'Description';
+
+    document.getElementById('feature-title').textContent = featureTitle;
+    document.getElementById('feature-desc').textContent  = featureDesc;
+
+    // Auto-size title
+    const titleLen = featureTitle.replace(/\n/g,'').length;
+    document.getElementById('feature-title').style.fontSize =
+      (titleLen < 20 ? 96 : titleLen < 30 ? 82 : 70) + 'px';
+
+    const cl  = (x, lo=0, hi=1) => Math.max(lo, Math.min(hi, x));
+    const n01 = (t, a, b) => cl((t - a) / (b - a));
+    const eio = t => t < .5 ? 2*t*t : 1 - (-2*t+2)**2/2;
+    const eo  = t => 1 - (1-t)**3;
+    const mix = (a, b, t) => a + (b - a) * t;
+    const $   = id => document.getElementById(id);
+
+    window.seek = (ms) => {
+      const t = ms / 1000;
+
+      // Background
+      $('grid').style.opacity = eio(n01(t, 0, 0.6));
+
+      // Glow pulse
+      const gScale = 1 + 0.04 * Math.sin(t * 1.4);
+      $('glow1').style.transform = `translate(-50%, -50%) scale(${gScale})`;
+
+      // Top brand pill drops in
+      const tbP = eio(n01(t, 0.2, 0.9));
+      $('top-brand').style.opacity = tbP;
+      $('top-brand').style.transform = `translateY(${mix(-20, 0, tbP)}px)`;
+
+      // "What we built for you" label
+      const lblP = eio(n01(t, 0.5, 1.2));
+      $('spotlight-label').style.opacity = lblP;
+      $('spotlight-label').style.transform = `translateY(${mix(16, 0, lblP)}px)`;
+
+      // Feature title rises
+      const ttlP = eio(n01(t, 0.9, 2.0));
+      $('feature-title').style.opacity = ttlP;
+      $('feature-title').style.transform = `translateY(${mix(40, 0, ttlP)}px)`;
+
+      // Bar extends
+      const barP = eo(n01(t, 1.6, 2.5));
+      $('feature-bar').style.opacity = barP;
+      $('feature-bar').style.transform = `scaleX(${barP})`;
+
+      // Description fades in
+      const descP = eio(n01(t, 2.2, 3.2));
+      $('feature-desc').style.opacity = descP;
+      $('feature-desc').style.transform = `translateY(${mix(20, 0, descP)}px)`;
+
+      // Bottom brand
+      const bbP = eio(n01(t, 3.0, 3.8));
+      $('bottom-brand').style.opacity = bbP;
+
+      const logoP = eio(n01(t, 3.0, 3.8));
+      $('brand-logo').style.opacity = logoP;
+      $('brand-logo').style.transform = `translateY(${mix(16, 0, logoP)}px)`;
+
+      $('brand-sub').style.opacity = eo(n01(t, 3.5, 4.3));
+    };
+
+    window.seek(0);
+    window.__ready = document.fonts.ready.then(() => true);
+  </script>
+</body>
+</html>

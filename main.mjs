@@ -1,64 +1,129 @@
 /**
- * AlongXide Instagram Reel Auto-Poster
- * Generates a fresh countdown reel and posts it to Instagram.
- * Run twice daily by GitHub Actions (09:00 and 19:00 WAT).
+ * AlongXide Instagram Auto-Poster
+ * 3 posts per day — morning Trial Reel, noon Feature Clip, evening Normal Reel.
+ * Random-within-window timing via deterministic date-seeded slot selection.
+ * Run by GitHub Actions at 4 slots per hour-window; 3 of 4 runs exit instantly.
  */
 
-import { generateReel } from './generate.mjs';
-import { postReel }     from './instagram.mjs';
-import { PROBLEMS }     from './generate/problems.mjs';
+import { generateReel, generateFeature } from './generate.mjs';
+import { postReel }                      from './instagram.mjs';
+import { PROBLEMS, SOLUTIONS, FEATURES } from './generate/problems.mjs';
 
 const LAUNCH_DATE = new Date('2026-12-04T00:00:00Z');
 const START_DATE  = new Date('2026-11-14T00:00:00Z');
 
 const HASHTAGS = '#AlongXide #BeninCity #Abuja #Nigeria #LaunchingSoon #December4';
 
-// ── Captions for each problem (4 variants, picked by rotation) ──────────
-// Template strings: {days} and {problem} are interpolated at runtime.
-const CAPTION_TEMPLATES = [
-  `{problem}\n\nAlongXide is solving this. {days} days to go.\n\n${HASHTAGS}`,
-  `{days} days.\n\nThe problem: {problem}\n\nWe built the fix. December 4th.\n\n${HASHTAGS}`,
-  `Real problem. Real solution.\n\n"{problem}"\n\nNot after December 4th. {days} days.\n\n${HASHTAGS}`,
-  `The city has everything you need.\nAlongXide makes it reachable.\n\n{days} days.\n\n${HASHTAGS}`,
+const REEL_CAPTIONS = [
+  `{problem}\n\nAlongXide fix: {solution}\n\n{days} days to December 4th.\n\n${HASHTAGS}`,
+  `"{problem}"\n\nWe solve this.\n\n{solution}\n\n{days} days to go — December 4th.\n\n${HASHTAGS}`,
+  `The problem: {problem}\n\nThe fix: {solution}\n\nAlongXide is coming. {days} days.\n\n${HASHTAGS}`,
+  `Real Nigerian problem.\n\n"{problem}"\n\nAlongXide answer: {solution}\n\n{days} days left.\n\n${HASHTAGS}`,
+];
+
+const FEATURE_CAPTIONS = [
+  `{title}.\n\n{desc}\n\nAlongXide. Coming December 4th. {days} days to go.\n\n${HASHTAGS}`,
+  `Built this for you.\n\n{title}.\n\n{desc}\n\n{days} days to December 4th.\n\n${HASHTAGS}`,
 ];
 
 function daysUntilLaunch() {
-  const now    = new Date();
-  const diff   = LAUNCH_DATE - now;
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  return Math.max(0, Math.ceil((LAUNCH_DATE - new Date()) / (1000 * 60 * 60 * 24)));
 }
 
-function getPostSlot() {
-  const now             = new Date();
-  const daysSinceStart  = Math.floor((now - START_DATE) / (1000 * 60 * 60 * 24));
-  const isEvening       = now.getUTCHours() >= 14;   // 14:00 UTC = 15:00 WAT+1
-  const postNumber      = daysSinceStart * 2 + (isEvening ? 1 : 0);
-  const problemIndex    = postNumber % PROBLEMS.length;
-  const captionVariant  = Math.floor(postNumber / PROBLEMS.length) % CAPTION_TEMPLATES.length;
-  return { problemIndex, captionVariant, postNumber };
+function daysSinceStart() {
+  return Math.floor((new Date() - START_DATE) / (1000 * 60 * 60 * 24));
+}
+
+// Deterministic pseudo-random slot: each day picks a different 15-min slot (0-3)
+// within the posting window. Only the matching slot actually posts; others exit fast.
+function isMySlot(windowName) {
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const seed    = `${windowName}-${dateStr}`;
+  const hash    = [...seed].reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
+  const preferredSlot  = Math.abs(hash) % 4;
+  const currentSlot    = Math.floor(new Date().getUTCMinutes() / 15);
+  return preferredSlot === currentSlot;
 }
 
 async function main() {
+  const now  = new Date();
+  const hour = now.getUTCHours();
   const days = daysUntilLaunch();
-  const { problemIndex, captionVariant, postNumber } = getPostSlot();
-  const problem = PROBLEMS[problemIndex];
+  const dss  = daysSinceStart();
 
-  console.log('=== AlongXide Reel Generator ===');
-  console.log(`Days until launch : ${days}`);
-  console.log(`Problem #${problemIndex}       : ${problem}`);
-  console.log(`Caption variant   : ${captionVariant}`);
+  // ── Morning: 7:00-7:45 UTC (8:00-8:45 AM WAT) → Trial Reel ─────────────
+  if (hour === 7) {
+    if (!isMySlot('morning')) { console.log('Not the morning slot today. Exiting.'); return; }
 
-  const caption = CAPTION_TEMPLATES[captionVariant]
-    .replace('{days}',    days)
-    .replace('{problem}', problem);
+    const postNum = dss * 2;
+    const problem  = PROBLEMS[postNum % PROBLEMS.length];
+    const solution = SOLUTIONS[postNum % SOLUTIONS.length];
+    const variant  = Math.floor(postNum / PROBLEMS.length) % REEL_CAPTIONS.length;
+    const caption  = REEL_CAPTIONS[variant]
+      .replace('{problem}', problem)
+      .replace('{solution}', solution)
+      .replace('{days}', days);
 
-  // Generate the video
-  console.log('\n[1/2] Generating video...');
-  const videoPath = await generateReel(problem, days, postNumber);
+    console.log('=== AlongXide — Morning Reel (Trial) ===');
+    console.log(`Days until launch : ${days}`);
+    console.log(`Problem           : ${problem}`);
+    console.log(`Solution          : ${solution}`);
 
-  // Post to Instagram
-  console.log('\n[2/2] Posting to Instagram...');
-  await postReel(videoPath, caption);
+    console.log('\n[1/2] Generating video...');
+    const videoPath = await generateReel(problem, solution, days, postNum);
+
+    console.log('\n[2/2] Posting as Trial Reel...');
+    await postReel(videoPath, caption, true);
+
+  // ── Noon: 11:00-11:45 UTC (12:00-12:45 PM WAT) → Feature Clip ──────────
+  } else if (hour === 11) {
+    if (!isMySlot('noon')) { console.log('Not the noon slot today. Exiting.'); return; }
+
+    const feature = FEATURES[dss % FEATURES.length];
+    const variant = dss % FEATURE_CAPTIONS.length;
+    const caption = FEATURE_CAPTIONS[variant]
+      .replace('{title}', feature.title.replace('\n', ' '))
+      .replace('{desc}', feature.desc)
+      .replace('{days}', days);
+
+    console.log('=== AlongXide — Noon Feature Clip ===');
+    console.log(`Days until launch : ${days}`);
+    console.log(`Feature           : ${feature.title.replace('\n', ' ')}`);
+
+    console.log('\n[1/2] Generating feature clip...');
+    const videoPath = await generateFeature(feature.title, feature.desc, dss);
+
+    console.log('\n[2/2] Posting feature clip...');
+    await postReel(videoPath, caption, false);
+
+  // ── Evening: 15:00-15:45 UTC (4:00-4:45 PM WAT) → Normal Reel ──────────
+  } else if (hour === 15) {
+    if (!isMySlot('evening')) { console.log('Not the evening slot today. Exiting.'); return; }
+
+    const postNum  = dss * 2 + 1;
+    const problem  = PROBLEMS[postNum % PROBLEMS.length];
+    const solution = SOLUTIONS[postNum % SOLUTIONS.length];
+    const variant  = Math.floor(postNum / PROBLEMS.length) % REEL_CAPTIONS.length;
+    const caption  = REEL_CAPTIONS[variant]
+      .replace('{problem}', problem)
+      .replace('{solution}', solution)
+      .replace('{days}', days);
+
+    console.log('=== AlongXide — Evening Reel (Normal) ===');
+    console.log(`Days until launch : ${days}`);
+    console.log(`Problem           : ${problem}`);
+    console.log(`Solution          : ${solution}`);
+
+    console.log('\n[1/2] Generating video...');
+    const videoPath = await generateReel(problem, solution, days, postNum);
+
+    console.log('\n[2/2] Posting as Regular Reel...');
+    await postReel(videoPath, caption, false);
+
+  } else {
+    console.log('Outside posting windows (7, 11, 15 UTC). Exiting.');
+    return;
+  }
 
   console.log('\nDone! 🚀');
 }

@@ -69,13 +69,14 @@ async function publish(containerId) {
   return data;
 }
 
-export async function postReel(videoPath, caption) {
+export async function postReel(videoPath, caption, trialFirst = true) {
   if (!IG_USER_ID || !ACCESS_TOKEN) {
     throw new Error('IG_USER_ID and IG_ACCESS_TOKEN env vars are required.');
   }
 
-  // Try Trial Reel first
-  for (const trial of [true, false]) {
+  // Morning posts try Trial Reel first; evening/noon posts skip straight to regular
+  const modes = trialFirst ? [true, false] : [false];
+  for (const trial of modes) {
     const mode = trial ? 'Trial Reel' : 'regular Reel';
     console.log(`  Posting as ${mode}...`);
     try {

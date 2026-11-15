@@ -21,3 +21,41 @@ export const PROBLEMS = [
   "Running errands wastes your whole afternoon.",
   "What you need is nearby. But unreachable alone.",
 ];
+
+// Paired solutions — one for each problem above.
+export const SOLUTIONS = [
+  "AlongXide sends a runner for you.",
+  "Get a photo before purchase. Every time.",
+  "Track your runner live. Know it's coming.",
+  "Delivery in under 90 minutes.",
+  "We know every market. We find it.",
+  "Photo confirmation before every purchase.",
+  "Transparent delivery fees. Always fair.",
+  "Digital receipt for every delivery.",
+  "One order. Multiple stops. Fully covered.",
+  "Pay on delivery. Zero upfront risk.",
+  "Same-day delivery. Every single day.",
+  "We work within your 2-hour window.",
+  "Order early. We handle the market hours.",
+  "Market prices. No markup. No surprises.",
+  "Verified runners. Zero leaps needed.",
+  "Secure payments. Accountable runners.",
+  "Real-time stock check before dispatch.",
+  "Live chat with your runner. Always.",
+  "Get your afternoon back. Use AlongXide.",
+  "We bridge that gap for you.",
+];
+
+// 10 feature highlights for noon posts.
+export const FEATURES = [
+  { title: "Real-Time\nRunner Tracking",   desc: "Watch your runner navigate live, every step of the way." },
+  { title: "Photo Before\nEvery Purchase", desc: "See it before they buy it. Every single time, no exceptions." },
+  { title: "Pay On\nDelivery",             desc: "Your money is fully protected until the item is in your hands." },
+  { title: "Same-Day\nDelivery",           desc: "Order in the morning. Have it delivered the same day." },
+  { title: "Multi-Stop\nErrands",          desc: "One order. Multiple markets. Completely handled for you." },
+  { title: "Digital\nReceipts",            desc: "Every purchase logged, photographed, and sent straight to you." },
+  { title: "Verified\nRunners Only",       desc: "Every runner is vetted, rated, and fully accountable." },
+  { title: "Market Fair\nPrices",          desc: "We shop at market price. Zero markup. Zero hidden charges." },
+  { title: "Live Chat\nWith Your Runner",  desc: "Message your runner directly at any point in real time." },
+  { title: "Benin City\n& Abuja",          desc: "Built for Nigerian cities. Launching December 4th." },
+];

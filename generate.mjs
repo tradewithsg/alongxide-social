@@ -1,7 +1,7 @@
 /**
- * Generates one AlongXide countdown reel as reel.mp4.
- * Usage: node generate.mjs <problem_text> <days_until_launch>
- * Called by main.mjs — not run directly in production.
+ * Generates AlongXide reels and feature clips as reel.mp4.
+ * Exports: generateReel(problem, solution, days, postIndex)
+ *          generateFeature(title, desc, postIndex)
  */
 
 import http from 'node:http';
@@ -11,148 +11,191 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import puppeteer from 'puppeteer';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
+const here        = path.dirname(fileURLToPath(import.meta.url));
 const GENERATE_DIR = path.join(here, 'generate');
-const FRAMES_DIR   = path.join(here, '.frames');
-const OUTPUT_PATH  = path.join(here, 'reel.mp4');
+const FRAMES_DIR  = path.join(here, '.frames');
+const OUTPUT_PATH = path.join(here, 'reel.mp4');
+const AUDIO_PATH  = path.join(here, 'audio.aac');
 
-const FPS       = 30;
-const DURATION  = 15;        // seconds
-const FRAMES    = FPS * DURATION;  // 450
+const FPS            = 30;
+const REEL_DURATION  = 15;
+const REEL_FRAMES    = FPS * REEL_DURATION;   // 450
+const FEAT_DURATION  = 5;
+const FEAT_FRAMES    = FPS * FEAT_DURATION;   // 150
 
-// 7 synthesised audio moods — picked by post index, generated fresh each run via ffmpeg
+const MIME = {
+  '.html': 'text/html',  '.js': 'text/javascript',  '.mjs': 'text/javascript',
+  '.css': 'text/css',    '.png': 'image/png',         '.woff2': 'font/woff2',
+};
+
+// ── 7 cinematic noise-based audio patterns ───────────────────────────────────
+// Each blends: sub-bass heartbeat + mid tension texture + shimmer on reveal
 const AUDIO_PATTERNS = [
-  // 0 Dramatic: deep A bass with slow heartbeat pulse
-  { freqs: [110, 165, 220],      vols: [0.40, 0.20, 0.08], hz: 1.5, depth: 0.70 },
-  // 1 Energetic: D major chord stack, fast 4-beat pulse
-  { freqs: [220, 277, 330, 440], vols: [0.30, 0.18, 0.12, 0.08], hz: 4.0, depth: 0.50 },
-  // 2 Countdown: G major, steady 2-beat
-  { freqs: [196, 247, 294],      vols: [0.35, 0.20, 0.10], hz: 2.0, depth: 0.60 },
-  // 3 Upbeat: C major, bright 3-beat
-  { freqs: [261, 329, 392],      vols: [0.28, 0.20, 0.15], hz: 3.0, depth: 0.45 },
-  // 4 Mysterious: open fifths, very slow throb
-  { freqs: [146, 219, 293],      vols: [0.38, 0.18, 0.08], hz: 1.0, depth: 0.75 },
-  // 5 Funky: G octave stack, syncopated 3.5-beat
-  { freqs: [196, 392, 588],      vols: [0.32, 0.20, 0.10], hz: 3.5, depth: 0.55 },
-  // 6 Minimal: clean E-B fifth, medium pulse
-  { freqs: [164, 247],           vols: [0.40, 0.25],       hz: 2.5, depth: 0.50 },
+  // 0: Dramatic — deep sub-bass, slow 1.5-beat heartbeat
+  { bassFreq: 70,  pulseHz: 1.5, pulseDep: 0.65, bassVol: 0.55,
+    midFreq: 320,  midBw: 400, midVol: 0.40, shimFreq: 5000, shimVol: 0.30 },
+  // 1: Energetic — punchy bass, fast 4-beat, bright shimmer
+  { bassFreq: 90,  pulseHz: 4.0, pulseDep: 0.55, bassVol: 0.50,
+    midFreq: 520,  midBw: 600, midVol: 0.38, shimFreq: 6500, shimVol: 0.42 },
+  // 2: Countdown — steady 2-beat, medium warmth
+  { bassFreq: 80,  pulseHz: 2.0, pulseDep: 0.60, bassVol: 0.52,
+    midFreq: 420,  midBw: 500, midVol: 0.38, shimFreq: 5500, shimVol: 0.35 },
+  // 3: Upbeat — 3-beat, brighter mid
+  { bassFreq: 85,  pulseHz: 3.0, pulseDep: 0.50, bassVol: 0.48,
+    midFreq: 600,  midBw: 700, midVol: 0.42, shimFreq: 7000, shimVol: 0.42 },
+  // 4: Mysterious — very slow 1-beat, very deep bass
+  { bassFreq: 55,  pulseHz: 1.0, pulseDep: 0.72, bassVol: 0.58,
+    midFreq: 220,  midBw: 320, midVol: 0.32, shimFreq: 4000, shimVol: 0.25 },
+  // 5: Funky — syncopated 3.5-beat, mid-heavy
+  { bassFreq: 95,  pulseHz: 3.5, pulseDep: 0.58, bassVol: 0.50,
+    midFreq: 560,  midBw: 650, midVol: 0.40, shimFreq: 6000, shimVol: 0.38 },
+  // 6: Minimal — clean 2.5-beat, light shimmer
+  { bassFreq: 75,  pulseHz: 2.5, pulseDep: 0.45, bassVol: 0.44,
+    midFreq: 360,  midBw: 460, midVol: 0.30, shimFreq: 5200, shimVol: 0.28 },
 ];
 
-async function generateAudio(postIndex, outputPath) {
+async function generateAudio(postIndex, duration = REEL_DURATION) {
   const p   = AUDIO_PATTERNS[postIndex % AUDIO_PATTERNS.length];
-  const dur = DURATION + 1;
-  const terms = p.freqs.map((f, i) => `${p.vols[i]}*sin(2*PI*${f}*t)`).join('+');
-  const lo  = (1 - p.depth).toFixed(2);
-  const hi  = p.depth.toFixed(2);
-  // aeval is universally available; replicates atremolo by modulating amplitude with abs(sin)
-  const envelope = `${lo}+${hi}*abs(sin(2*PI*${p.hz}*t))`;
+  const dur = duration + 1;
+
+  // Shimmer kicks in at 80% through the video (logo/brand reveal moment)
+  const shimStart = (duration * 0.80).toFixed(1);
+
+  // Bass: low-pass brown noise with rhythmic amplitude modulation (the "heartbeat")
+  const bassEnv    = `${(1 - p.pulseDep).toFixed(2)}+${p.pulseDep.toFixed(2)}*abs(sin(2*PI*${p.pulseHz}*t))`;
+  const bassFilter = `[0]lowpass=f=${p.bassFreq},aeval=val(0)*(${bassEnv}),volume=${p.bassVol.toFixed(2)}[bass]`;
+
+  // Mid tension: bandpass pink noise that builds from silence over first 7 seconds
+  const midFilter  = `[1]bandpass=f=${p.midFreq}:width_type=h:w=${p.midBw},aeval=val(0)*${p.midVol.toFixed(2)}*min(t/7,1)[mid]`;
+
+  // Shimmer: narrow high-band white noise, emerges at logo reveal
+  const shimMax    = Math.min(p.shimFreq * 2, 20000);
+  const shimFilter = `[2]highpass=f=${p.shimFreq},lowpass=f=${shimMax},aeval=val(0)*${p.shimVol.toFixed(2)}*(0.08+0.92*min(max(t-${shimStart},0)/2,1))[shim]`;
+
+  const filterGraph = [
+    bassFilter, midFilter, shimFilter,
+    `[bass][mid][shim]amix=inputs=3[mix]`,
+    `[mix]afade=in:st=0:d=0.5,afade=out:st=${dur - 1.5}:d=1.5[out]`,
+  ].join(';');
+
   await runFfmpeg([
-    '-f', 'lavfi', '-i', `aevalsrc='${terms}':s=44100:d=${dur}`,
-    '-af', `aeval=val(0)*(${envelope}),afade=in:st=0:d=0.5,afade=out:st=${dur - 1.5}:d=1.5`,
-    '-ac', '2', '-c:a', 'aac', '-b:a', '128k', '-y', outputPath,
+    '-f', 'lavfi', '-i', `anoisesrc=c=brown:a=1.0:d=${dur}`,
+    '-f', 'lavfi', '-i', `anoisesrc=c=pink:a=1.0:d=${dur}`,
+    '-f', 'lavfi', '-i', `anoisesrc=c=white:a=1.0:d=${dur}`,
+    '-filter_complex', filterGraph,
+    '-map', '[out]',
+    '-ac', '2', '-c:a', 'aac', '-b:a', '128k', '-y', AUDIO_PATH,
   ]);
 }
 
-const MIME = {
-  '.html': 'text/html',
-  '.js':   'text/javascript',
-  '.mjs':  'text/javascript',
-  '.css':  'text/css',
-  '.png':  'image/png',
-  '.woff2':'font/woff2',
-};
-
-export async function generateReel(problemText, daysUntilLaunch, postIndex = 0) {
-  // ── Local HTTP server to serve the generate/ folder ──────────────────
+function makeServer() {
   const server = http.createServer((req, res) => {
     const url  = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     const file = path.join(GENERATE_DIR, url === '/' ? 'reel.html' : url);
     if (existsSync(file) && !file.includes('..')) {
-      const ext  = path.extname(file);
+      const ext = path.extname(file);
       res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Access-Control-Allow-Origin': '*' });
       res.end(readFileSync(file));
-    } else {
-      res.writeHead(404); res.end();
-    }
+    } else { res.writeHead(404); res.end(); }
   });
-  await new Promise(r => server.listen(0, '127.0.0.1', r));
-  const { port } = server.address();
+  return new Promise(r => server.listen(0, '127.0.0.1', () => r(server)));
+}
 
-  // ── Launch Puppeteer ──────────────────────────────────────────────────
-  const browser = await puppeteer.launch({
+async function makeBrowser() {
+  return puppeteer.launch({
     headless: true,
     protocolTimeout: 300_000,
     args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-gpu',
-      '--hide-scrollbars',
-      '--force-color-profile=srgb',
-      '--font-render-hinting=none',
-      '--run-all-compositor-stages-before-draw',
+      '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu',
+      '--hide-scrollbars', '--force-color-profile=srgb',
+      '--font-render-hinting=none', '--run-all-compositor-stages-before-draw',
     ],
   });
+}
 
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
-
-  const params = new URLSearchParams({
-    problem: problemText,
-    days:    String(daysUntilLaunch),
-  });
-  await page.goto(`http://127.0.0.1:${port}/?${params}`, { waitUntil: 'networkidle0' });
-  await page.evaluate(() => window.__ready);
-  // Let Chrome finish initial layout and paint before we start capturing frames
-  await new Promise(r => setTimeout(r, 1500));
-
-  // ── Render frames ─────────────────────────────────────────────────────
+async function renderFrames(page, totalFrames) {
   if (existsSync(FRAMES_DIR)) rmSync(FRAMES_DIR, { recursive: true });
   mkdirSync(FRAMES_DIR);
-
-  for (let f = 0; f < FRAMES; f++) {
+  for (let f = 0; f < totalFrames; f++) {
     const ms = (f / FPS) * 1000;
-    await page.evaluate(ms => {
-      window.seek(ms);
-      return new Promise(requestAnimationFrame);
-    }, ms);
+    await page.evaluate(ms => { window.seek(ms); return new Promise(requestAnimationFrame); }, ms);
     await page.screenshot({
       path: path.join(FRAMES_DIR, `${String(f).padStart(4, '0')}.png`),
-      omitBackground: false,
-      timeout: 60_000,
+      omitBackground: false, timeout: 60_000,
     });
-    if (f % 30 === 0) process.stdout.write(`\r  Rendering: ${f}/${FRAMES} frames`);
+    if (f % 30 === 0) process.stdout.write(`\r  Rendering: ${f}/${totalFrames} frames`);
   }
-  process.stdout.write(`\r  Rendering: ${FRAMES}/${FRAMES} frames ✓\n`);
+  process.stdout.write(`\r  Rendering: ${totalFrames}/${totalFrames} frames ✓\n`);
+}
 
-  await browser.close();
-  server.close();
-
-  // ── Generate audio ────────────────────────────────────────────────────
-  const AUDIO_PATH = path.join(here, 'audio.aac');
-  console.log(`  Generating audio (pattern ${postIndex % AUDIO_PATTERNS.length})...`);
-  await generateAudio(postIndex, AUDIO_PATH);
-
-  // ── Stitch frames + audio into MP4 ───────────────────────────────────
-  console.log('  Stitching video...');
+async function stitchVideo() {
   await runFfmpeg([
     '-framerate', String(FPS),
     '-i', path.join(FRAMES_DIR, '%04d.png'),
     '-i', AUDIO_PATH,
     '-vf', 'format=yuv420p',
-    '-c:v', 'libx264',
-    '-preset', 'fast',
-    '-crf', '18',
-    '-c:a', 'aac',
-    '-b:a', '128k',
-    '-shortest',
-    '-profile:v', 'high',
-    '-movflags', '+faststart',
+    '-c:v', 'libx264', '-preset', 'fast', '-crf', '18',
+    '-c:a', 'aac', '-b:a', '128k', '-shortest',
+    '-profile:v', 'high', '-movflags', '+faststart',
     '-y', OUTPUT_PATH,
   ]);
-
   rmSync(FRAMES_DIR, { recursive: true });
   if (existsSync(AUDIO_PATH)) rmSync(AUDIO_PATH);
-  console.log(`  Video ready: reel.mp4`);
+}
+
+// ── Exported: countdown reel (problem → solution → countdown → brand) ────────
+export async function generateReel(problemText, solutionText, daysUntilLaunch, postIndex = 0) {
+  const server  = await makeServer();
+  const { port } = server.address();
+  const browser = await makeBrowser();
+  const page    = await browser.newPage();
+  await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
+
+  const params = new URLSearchParams({
+    problem:  problemText,
+    solution: solutionText,
+    days:     String(daysUntilLaunch),
+  });
+  await page.goto(`http://127.0.0.1:${port}/?${params}`, { waitUntil: 'networkidle0' });
+  await page.evaluate(() => window.__ready);
+  await new Promise(r => setTimeout(r, 1500));
+
+  await renderFrames(page, REEL_FRAMES);
+  await browser.close();
+  server.close();
+
+  console.log(`  Generating audio (pattern ${postIndex % AUDIO_PATTERNS.length})...`);
+  await generateAudio(postIndex, REEL_DURATION);
+
+  console.log('  Stitching video...');
+  await stitchVideo();
+  console.log('  Video ready: reel.mp4');
+  return OUTPUT_PATH;
+}
+
+// ── Exported: feature highlight clip (noon post) ─────────────────────────────
+export async function generateFeature(featureTitle, featureDesc, postIndex = 0) {
+  const server  = await makeServer();
+  const { port } = server.address();
+  const browser = await makeBrowser();
+  const page    = await browser.newPage();
+  await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
+
+  const params = new URLSearchParams({ title: featureTitle, desc: featureDesc });
+  await page.goto(`http://127.0.0.1:${port}/feature.html?${params}`, { waitUntil: 'networkidle0' });
+  await page.evaluate(() => window.__ready);
+  await new Promise(r => setTimeout(r, 1500));
+
+  await renderFrames(page, FEAT_FRAMES);
+  await browser.close();
+  server.close();
+
+  console.log(`  Generating audio (pattern ${postIndex % AUDIO_PATTERNS.length})...`);
+  await generateAudio(postIndex, FEAT_DURATION);
+
+  console.log('  Stitching video...');
+  await stitchVideo();
+  console.log('  Feature clip ready: reel.mp4');
   return OUTPUT_PATH;
 }
 
@@ -161,12 +204,4 @@ function runFfmpeg(args) {
     const proc = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], { stdio: 'inherit' });
     proc.on('close', code => code === 0 ? resolve() : reject(new Error(`ffmpeg exit ${code}`)));
   });
-}
-
-// Allow running standalone for testing:
-// node generate.mjs "Your runner took your money. And left." 20
-if (process.argv[2]) {
-  const problem = process.argv[2];
-  const days    = parseInt(process.argv[3] ?? '20');
-  generateReel(problem, days).catch(err => { console.error(err); process.exit(1); });
 }
