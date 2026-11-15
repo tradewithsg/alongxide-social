@@ -271,7 +271,7 @@ export async function generateFeature(featureTitle, featureDesc, postIndex = 0) 
 }
 
 // ── Exported: afternoon static photo (white bg, 1080×1350) ──────────────────
-export async function generatePhoto(featureTitle, featureDesc, daysUntilLaunch) {
+export async function generatePhoto(featureTitle, featureDesc, daysUntilLaunch, featureIndex = 0) {
   const server  = await makeServer();
   const { port } = server.address();
   const browser = await makeBrowser();
@@ -282,6 +282,7 @@ export async function generatePhoto(featureTitle, featureDesc, daysUntilLaunch) 
     title: featureTitle,
     desc:  featureDesc,
     days:  String(daysUntilLaunch),
+    index: String(featureIndex),
   });
   await page.goto(`http://127.0.0.1:${port}/photo.html?${params}`, { waitUntil: 'networkidle0' });
   await page.evaluate(() => window.__ready);

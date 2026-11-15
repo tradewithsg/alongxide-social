@@ -97,7 +97,7 @@ async function main() {
     console.log(`Feature           : ${feature.title.replace('\n', ' ')}`);
 
     console.log('\n[1/2] Generating photo...');
-    const photoPath = await generatePhoto(feature.title, feature.desc, days);
+    const photoPath = await generatePhoto(feature.title, feature.desc, days, dss % FEATURES.length);
 
     console.log('\n[2/2] Posting as photo...');
     await postPhoto(photoPath, caption);

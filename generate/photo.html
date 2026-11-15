@@ -7,210 +7,334 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
     html, body {
-      width: 1080px;
-      height: 1350px;
+      width: 1080px; height: 1350px;
       overflow: hidden;
       background: #ffffff;
       font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Green header band ── */
     #header {
+      height: 160px;
       background: #3DCB92;
-      padding: 52px 80px 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 0 80px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    #logo {
-      font-size: 52px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -.03em;
-    }
-    #logo .dot { color: rgba(255,255,255,.55); }
-    #header-tag {
-      font-size: 18px;
-      font-weight: 700;
-      color: rgba(255,255,255,.75);
-      letter-spacing: .18em;
-      text-transform: uppercase;
-    }
+    #logo { font-size: 50px; font-weight: 800; color: #fff; letter-spacing: -.03em; }
+    #logo .x { color: rgba(255,255,255,.60); }
+    #header-tag { font-size: 17px; font-weight: 700; color: rgba(255,255,255,.78); letter-spacing: .18em; text-transform: uppercase; }
 
-    /* ── Main content ── */
-    #body {
-      padding: 80px 80px 0;
-      display: flex;
-      flex-direction: column;
+    #illus-zone {
+      height: 420px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; background: #fff;
     }
+    #illus-bg {
+      position: absolute;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(61,203,146,.08);
+    }
+    #illus-svg { width: 320px; height: 300px; position: relative; z-index: 1; }
+
+    #body { padding: 50px 80px 32px; overflow: hidden; }
 
     #spotlight-label {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: .26em;
-      color: #3DCB92;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      font-size: 16px; font-weight: 700; letter-spacing: .24em;
+      color: #3DCB92; text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
     }
     #spotlight-label::before {
-      content: '';
-      display: block;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: #3DCB92;
-      flex-shrink: 0;
+      content: ''; display: block; width: 9px; height: 9px;
+      border-radius: 50%; background: #3DCB92; flex-shrink: 0;
     }
 
     #feature-title {
-      font-size: 94px;
-      font-weight: 900;
-      line-height: 1.0;
-      letter-spacing: -.03em;
-      color: #0a0a0a;
-      white-space: pre-line;
-      margin-bottom: 44px;
+      font-size: 88px; font-weight: 900; line-height: 1.0;
+      letter-spacing: -.03em; color: #0a0a0a;
+      white-space: pre-line; margin-bottom: 36px;
     }
 
     #accent-bar {
-      width: 100%;
-      height: 5px;
+      width: 100%; height: 4px;
       background: linear-gradient(90deg, #3DCB92 0%, rgba(61,203,146,.12) 100%);
-      border-radius: 3px;
-      margin-bottom: 44px;
+      border-radius: 2px; margin-bottom: 36px;
     }
 
     #feature-desc {
-      font-size: 36px;
-      font-weight: 400;
-      line-height: 1.55;
-      color: #2a2a2a;
-      margin-bottom: 60px;
+      font-size: 34px; font-weight: 400; line-height: 1.55;
+      color: #2a2a2a; margin-bottom: 40px;
     }
 
-    /* ── Benefit pills ── */
-    #pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 60px;
-    }
+    #pills { display: flex; flex-wrap: wrap; gap: 14px; }
     .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 24px;
-      border-radius: 999px;
-      border: 2px solid rgba(61,203,146,.30);
-      background: rgba(61,203,146,.06);
-      font-size: 20px;
-      font-weight: 600;
-      color: #1a1a1a;
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 12px 22px; border-radius: 999px;
+      border: 2px solid rgba(61,203,146,.28);
+      background: rgba(61,203,146,.05);
+      font-size: 19px; font-weight: 600; color: #1a1a1a;
     }
-    .pill-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #3DCB92;
-      flex-shrink: 0;
-    }
+    .pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #3DCB92; flex-shrink: 0; }
 
-    /* ── Footer countdown ── */
     #footer {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: #05110C;
-      padding: 44px 80px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 156px; background: #05110C;
+      padding: 0 80px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    #countdown-block {
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-    }
-    #count-num {
-      font-size: 72px;
-      font-weight: 900;
-      color: #3DCB92;
-      line-height: 1;
-      letter-spacing: -.03em;
-    }
-    #count-label {
-      font-size: 22px;
-      font-weight: 600;
-      color: rgba(255,255,255,.60);
-      letter-spacing: .04em;
-    }
-    #footer-right {
-      text-align: right;
-    }
-    #footer-brand {
-      font-size: 32px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -.02em;
-    }
+    #countdown-block { display: flex; align-items: baseline; gap: 12px; }
+    #count-num { font-size: 68px; font-weight: 900; color: #3DCB92; line-height: 1; letter-spacing: -.03em; }
+    #count-label { font-size: 20px; font-weight: 600; color: rgba(255,255,255,.52); letter-spacing: .04em; }
+    #footer-right { text-align: right; }
+    #footer-brand { font-size: 30px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
     #footer-brand .x { color: #3DCB92; }
-    #footer-sub {
-      font-size: 17px;
-      font-weight: 400;
-      color: rgba(255,255,255,.40);
-      margin-top: 6px;
-      letter-spacing: .04em;
-    }
+    #footer-sub { font-size: 15px; color: rgba(255,255,255,.36); margin-top: 5px; letter-spacing: .04em; }
   </style>
 </head>
 <body>
-  <div id="header">
-    <div id="logo">Along<span class="dot">X</span>ide</div>
-    <div id="header-tag">Feature Spotlight</div>
+
+<div id="header">
+  <div id="logo">Along<span class="x">X</span>ide</div>
+  <div id="header-tag">Feature Spotlight</div>
+</div>
+
+<div id="illus-zone">
+  <div id="illus-bg"></div>
+  <svg id="illus-svg" viewBox="0 0 320 300" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<div id="body">
+  <div id="spotlight-label">What we built for you</div>
+  <div id="feature-title">TITLE</div>
+  <div id="accent-bar"></div>
+  <div id="feature-desc">DESC</div>
+  <div id="pills">
+    <div class="pill"><div class="pill-dot"></div>Benin City</div>
+    <div class="pill"><div class="pill-dot"></div>Abuja</div>
+    <div class="pill"><div class="pill-dot"></div>Dec 4</div>
   </div>
+</div>
 
-  <div id="body">
-    <div id="spotlight-label">What we built for you</div>
-    <div id="feature-title">FEATURE_TITLE</div>
-    <div id="accent-bar"></div>
-    <div id="feature-desc">FEATURE_DESC</div>
-    <div id="pills">
-      <div class="pill"><div class="pill-dot"></div>Benin City</div>
-      <div class="pill"><div class="pill-dot"></div>Abuja</div>
-      <div class="pill"><div class="pill-dot"></div>Launching Dec 4</div>
-    </div>
+<div id="footer">
+  <div id="countdown-block">
+    <div id="count-num">19</div>
+    <div id="count-label">days to go</div>
   </div>
-
-  <div id="footer">
-    <div id="countdown-block">
-      <div id="count-num">19</div>
-      <div id="count-label">days to go</div>
-    </div>
-    <div id="footer-right">
-      <div id="footer-brand">Along<span class="x">X</span>ide</div>
-      <div id="footer-sub">alongxide.com</div>
-    </div>
+  <div id="footer-right">
+    <div id="footer-brand">Along<span class="x">X</span>ide</div>
+    <div id="footer-sub">Benin City · Abuja · Launching Dec 4</div>
   </div>
+</div>
 
-  <script>
-    const q = new URLSearchParams(location.search);
-    const featureTitle = q.get('title') || 'Feature Title';
-    const featureDesc  = q.get('desc')  || 'Feature description goes here.';
-    const daysCount    = q.get('days')  || '19';
+<script>
+  const q = new URLSearchParams(location.search);
+  const featureTitle = q.get('title') || 'Feature';
+  const featureDesc  = q.get('desc')  || 'Description';
+  const daysCount    = q.get('days')  || '19';
+  const idx          = parseInt(q.get('index') || '0', 10);
 
-    document.getElementById('feature-title').textContent = featureTitle;
-    document.getElementById('feature-desc').textContent  = featureDesc;
-    document.getElementById('count-num').textContent     = daysCount;
+  document.getElementById('feature-title').textContent = featureTitle;
+  document.getElementById('feature-desc').textContent  = featureDesc;
+  document.getElementById('count-num').textContent     = daysCount;
 
-    // Auto-size title
-    const titleLen = featureTitle.replace(/\n/g, '').length;
-    document.getElementById('feature-title').style.fontSize =
-      (titleLen < 20 ? 94 : titleLen < 30 ? 80 : 68) + 'px';
+  const tlen = featureTitle.replace(/\n/g,'').length;
+  document.getElementById('feature-title').style.fontSize =
+    (tlen < 20 ? 88 : tlen < 30 ? 76 : 64) + 'px';
 
-    window.__ready = document.fonts.ready.then(() => true);
-  </script>
+  // ── SVG Illustrations — one per feature ────────────────────────────────
+  const G = '#3DCB92', D = '#0a0a0a', W = '#fff', S = '#dcf5ec';
+
+  const ILLUS = [
+
+    // 0 — Real-Time Runner Tracking: phone + map pin + runner
+    `<rect x="88" y="18" width="134" height="230" rx="22" fill="${D}"/>
+     <rect x="98" y="38" width="114" height="192" rx="10" fill="${S}"/>
+     <rect x="98" y="128" width="114" height="10" fill="${W}"/>
+     <rect x="148" y="38" width="10" height="192" fill="${W}"/>
+     <path d="M115 198 Q145 162 183 110" stroke="${G}" stroke-width="3.5" stroke-dasharray="6,5" stroke-linecap="round"/>
+     <circle cx="115" cy="198" r="8" fill="${D}"/><circle cx="115" cy="198" r="4" fill="${W}"/>
+     <circle cx="183" cy="94" r="20" fill="${G}"/>
+     <circle cx="183" cy="88" r="10" fill="${W}"/>
+     <line x1="183" y1="110" x2="183" y2="124" stroke="${G}" stroke-width="5" stroke-linecap="round"/>
+     <circle cx="183" cy="94" r="30" stroke="${G}" stroke-width="2.5" fill="none" opacity=".45"/>
+     <circle cx="183" cy="94" r="42" stroke="${G}" stroke-width="1.5" fill="none" opacity=".22"/>
+     <rect x="137" y="29" width="36" height="8" rx="4" fill="#1a1a1a"/>
+     <circle cx="268" cy="150" r="30" fill="${G}" opacity=".15"/>
+     <circle cx="268" cy="136" r="18" fill="${D}"/>
+     <circle cx="268" cy="130" r="10" fill="#aaa"/>
+     <line x1="262" y1="150" x2="258" y2="175" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <line x1="274" y1="150" x2="278" y2="175" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <path d="M258 160 L278 155" stroke="${D}" stroke-width="5" stroke-linecap="round"/>
+     <line x1="234" y1="142" x2="246" y2="142" stroke="${G}" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+     <line x1="230" y1="153" x2="244" y2="153" stroke="${G}" stroke-width="2.5" stroke-linecap="round" opacity=".5"/>
+     <line x1="232" y1="163" x2="245" y2="163" stroke="${G}" stroke-width="2" stroke-linecap="round" opacity=".35"/>`,
+
+    // 1 — Photo Before Every Purchase: camera + photo frame
+    `<rect x="58" y="98" width="204" height="148" rx="22" fill="${D}"/>
+     <rect x="98" y="74" width="58" height="30" rx="10" fill="${D}"/>
+     <rect x="78" y="82" width="32" height="18" rx="6" fill="${G}"/>
+     <circle cx="160" cy="172" r="52" fill="#1e1e1e"/>
+     <circle cx="160" cy="172" r="42" fill="${G}"/>
+     <circle cx="160" cy="172" r="30" fill="${D}"/>
+     <circle cx="160" cy="172" r="20" fill="${S}"/>
+     <circle cx="150" cy="162" r="6" fill="${W}" opacity=".5"/>
+     <circle cx="248" cy="104" r="16" fill="${G}"/>
+     <circle cx="248" cy="104" r="10" fill="#2aad7a"/>
+     <rect x="12" y="22" width="92" height="82" rx="10" fill="${W}" stroke="${G}" stroke-width="3"/>
+     <rect x="24" y="38" width="68" height="10" rx="5" fill="${S}"/>
+     <rect x="24" y="54" width="52" height="10" rx="5" fill="${S}"/>
+     <rect x="24" y="70" width="60" height="10" rx="5" fill="${S}"/>
+     <circle cx="92" cy="30" r="18" fill="${G}"/>
+     <path d="M82 30 L89 38 L103 20" stroke="${W}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+
+    // 2 — Pay On Delivery: shield + lock + coins
+    `<path d="M160 22 L248 56 L248 158 Q248 222 160 265 Q72 222 72 158 L72 56 Z" fill="${G}"/>
+     <path d="M160 46 L224 76 L224 156 Q224 206 160 242 Q96 206 96 156 L96 76 Z" fill="#2aad7a"/>
+     <rect x="128" y="162" width="64" height="58" rx="12" fill="${W}"/>
+     <path d="M140 162 L140 138 Q140 115 160 115 Q180 115 180 138 L180 162" stroke="${W}" stroke-width="9" fill="none" stroke-linecap="round"/>
+     <circle cx="160" cy="184" r="11" fill="${G}"/>
+     <rect x="155" y="190" width="10" height="14" rx="5" fill="${G}"/>
+     <circle cx="118" cy="276" r="18" fill="#f4c842"/>
+     <circle cx="118" cy="276" r="12" fill="#e8b02a"/>
+     <circle cx="150" cy="280" r="14" fill="#f4c842"/>
+     <circle cx="150" cy="280" r="9" fill="#e8b02a"/>
+     <circle cx="178" cy="276" r="16" fill="#f4c842"/>
+     <circle cx="178" cy="276" r="10" fill="#e8b02a"/>`,
+
+    // 3 — Same-Day Delivery: clock + package
+    `<circle cx="128" cy="145" r="104" fill="${W}" stroke="${D}" stroke-width="8"/>
+     <circle cx="128" cy="145" r="8" fill="${D}"/>
+     <line x1="128" y1="145" x2="128" y2="78" stroke="${D}" stroke-width="8" stroke-linecap="round"/>
+     <line x1="128" y1="145" x2="176" y2="162" stroke="${G}" stroke-width="8" stroke-linecap="round"/>
+     <line x1="128" y1="52" x2="128" y2="66" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <line x1="221" y1="145" x2="207" y2="145" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <line x1="128" y1="238" x2="128" y2="224" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <line x1="35" y1="145" x2="49" y2="145" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <rect x="218" y="162" width="88" height="82" rx="10" fill="${G}"/>
+     <line x1="218" y1="195" x2="306" y2="195" stroke="#2aad7a" stroke-width="3"/>
+     <line x1="262" y1="162" x2="262" y2="244" stroke="#2aad7a" stroke-width="3"/>
+     <line x1="234" y1="150" x2="218" y2="162" stroke="${G}" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
+     <line x1="230" y1="168" x2="216" y2="175" stroke="${G}" stroke-width="2.5" stroke-linecap="round" opacity=".45"/>
+     <line x1="230" y1="180" x2="217" y2="186" stroke="${G}" stroke-width="2" stroke-linecap="round" opacity=".3"/>`,
+
+    // 4 — Multi-Stop Errands: three pins + dotted route
+    `<circle cx="68" cy="225" r="26" fill="${G}"/>
+     <circle cx="68" cy="218" r="13" fill="${W}"/>
+     <line x1="68" y1="239" x2="68" y2="256" stroke="${G}" stroke-width="6" stroke-linecap="round"/>
+     <path d="M68 225 Q118 165 185 102" stroke="${D}" stroke-width="3" stroke-dasharray="8,6" stroke-linecap="round" opacity=".35"/>
+     <circle cx="185" cy="88" r="26" fill="${D}"/>
+     <circle cx="185" cy="81" r="13" fill="${G}"/>
+     <line x1="185" y1="102" x2="185" y2="118" stroke="${D}" stroke-width="6" stroke-linecap="round"/>
+     <path d="M185 88 Q230 128 262 188" stroke="${D}" stroke-width="3" stroke-dasharray="8,6" stroke-linecap="round" opacity=".35"/>
+     <circle cx="262" cy="200" r="26" fill="${G}"/>
+     <circle cx="262" cy="193" r="13" fill="${W}"/>
+     <line x1="262" y1="214" x2="262" y2="230" stroke="${G}" stroke-width="6" stroke-linecap="round"/>
+     <circle cx="118" cy="168" r="8" fill="${G}"/>
+     <circle cx="230" cy="140" r="8" fill="${G}"/>
+     <rect x="40" y="254" width="56" height="42" rx="8" fill="${W}" stroke="${G}" stroke-width="3"/>
+     <path d="M51 263 Q51 252 68 252 Q85 252 85 263" stroke="${G}" stroke-width="3" fill="none"/>`,
+
+    // 5 — Digital Receipts: document + checkmark badge
+    `<rect x="88" y="22" width="184" height="244" rx="14" fill="${W}" stroke="#ddd" stroke-width="3"/>
+     <path d="M228 22 L272 66 L228 66 Z" fill="#efefef"/>
+     <path d="M228 22 L272 66" stroke="#ddd" stroke-width="2"/>
+     <rect x="106" y="48" width="144" height="16" rx="6" fill="${G}" opacity=".9"/>
+     <rect x="106" y="80" width="124" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="106" y="98" width="144" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="106" y="116" width="104" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="106" y="134" width="134" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="106" y="152" width="114" height="10" rx="5" fill="#ebebeb"/>
+     <line x1="106" y1="174" x2="250" y2="174" stroke="#ebebeb" stroke-width="2" stroke-dasharray="6,4"/>
+     <rect x="106" y="184" width="144" height="16" rx="6" fill="${S}"/>
+     <rect x="110" y="214" width="140" height="42" rx="10" fill="none" stroke="${G}" stroke-width="4"/>
+     <rect x="122" y="224" width="118" height="8" rx="4" fill="${G}" opacity=".25"/>
+     <rect x="122" y="236" width="90" height="8" rx="4" fill="${G}" opacity=".18"/>
+     <circle cx="258" cy="34" r="30" fill="${G}"/>
+     <path d="M244 34 L253 45 L272 23" stroke="${W}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`,
+
+    // 6 — Verified Runners Only: person + shield badge
+    `<circle cx="145" cy="82" r="52" fill="#e8e8e8"/>
+     <circle cx="145" cy="78" r="44" fill="#c8c8c8"/>
+     <ellipse cx="145" cy="195" rx="68" ry="72" fill="#e8e8e8"/>
+     <ellipse cx="145" cy="192" rx="60" ry="64" fill="#c8c8c8"/>
+     <circle cx="145" cy="82" r="38" fill="#f0f0f0"/>
+     <circle cx="130" cy="76" r="7" fill="${D}"/>
+     <circle cx="160" cy="76" r="7" fill="${D}"/>
+     <path d="M128 97 Q145 112 162 97" stroke="${D}" stroke-width="4" fill="none" stroke-linecap="round"/>
+     <path d="M238 185 L260 200 L260 254 Q260 274 240 274 Q220 274 220 254 L220 200 Z" fill="${G}"/>
+     <path d="M238 185 L216 200" stroke="${G}" stroke-width="2"/>
+     <circle cx="240" cy="230" r="40" fill="${G}"/>
+     <circle cx="240" cy="230" r="34" fill="#2aad7a"/>
+     <path d="M224 230 L236 244 L258 215" stroke="${W}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`,
+
+    // 7 — Market Fair Prices: two equal tags + checkmark
+    `<path d="M52 76 L52 188 Q52 200 64 200 L152 200 Q164 200 164 188 L164 76 Q164 64 152 64 L115 64 L100 44 L85 64 L64 64 Q52 64 52 76 Z" fill="${W}" stroke="#ddd" stroke-width="3"/>
+     <circle cx="100" cy="64" r="9" fill="${W}" stroke="#ddd" stroke-width="3"/>
+     <rect x="68" y="88" width="80" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="68" y="106" width="64" height="10" rx="5" fill="#ebebeb"/>
+     <rect x="68" y="150" width="80" height="28" rx="8" fill="#f4f4f4"/>
+     <rect x="72" y="156" width="58" height="8" rx="4" fill="#c8c8c8"/>
+     <rect x="72" y="168" width="44" height="8" rx="4" fill="#c8c8c8"/>
+     <text x="104" y="140" text-anchor="middle" font-size="20" font-weight="800" fill="${G}" font-family="Inter,sans-serif">=</text>
+     <path d="M168 76 L168 188 Q168 200 180 200 L268 200 Q280 200 280 188 L280 76 Q280 64 268 64 L231 64 L216 44 L201 64 L180 64 Q168 64 168 76 Z" fill="${G}"/>
+     <circle cx="216" cy="64" r="9" fill="#2aad7a"/>
+     <rect x="184" y="88" width="80" height="10" rx="5" fill="rgba(0,0,0,.18)"/>
+     <rect x="184" y="106" width="64" height="10" rx="5" fill="rgba(0,0,0,.14)"/>
+     <rect x="184" y="150" width="80" height="28" rx="8" fill="rgba(0,0,0,.12)"/>
+     <rect x="188" y="156" width="58" height="8" rx="4" fill="rgba(0,0,0,.18)"/>
+     <rect x="188" y="168" width="44" height="8" rx="4" fill="rgba(0,0,0,.14)"/>
+     <circle cx="160" cy="256" r="30" fill="${G}"/>
+     <path d="M146 256 L156 268 L176 244" stroke="${W}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`,
+
+    // 8 — Live Chat With Your Runner: two speech bubbles
+    `<rect x="20" y="38" width="148" height="110" rx="20" fill="${S}" stroke="${G}" stroke-width="3"/>
+     <path d="M44 148 L28 172 L68 148 Z" fill="${S}" stroke="${G}" stroke-width="3"/>
+     <circle cx="58" cy="82" r="22" fill="${G}" opacity=".25"/>
+     <rect x="58" y="68" width="10" height="10" rx="2" fill="${D}" opacity=".5"/>
+     <path d="M42 100 Q94 110 112 100" stroke="${G}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>
+     <circle cx="62" cy="90" r="4" fill="${G}"/>
+     <circle cx="82" cy="90" r="4" fill="${G}"/>
+     <circle cx="102" cy="90" r="4" fill="${G}"/>
+     <rect x="152" y="142" width="148" height="110" rx="20" fill="${G}"/>
+     <path d="M276 252 L292 276 L252 252 Z" fill="${G}"/>
+     <circle cx="226" cy="197" r="30" fill="rgba(0,0,0,.12)"/>
+     <circle cx="226" cy="188" r="16" fill="${W}" opacity=".6"/>
+     <line x1="218" y1="204" x2="214" y2="224" stroke="${W}" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+     <line x1="234" y1="204" x2="238" y2="224" stroke="${W}" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+     <line x1="204" y1="212" x2="216" y2="208" stroke="${W}" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+     <circle cx="62" cy="234" r="10" fill="${G}" opacity=".5"/>
+     <circle cx="92" cy="244" r="10" fill="${G}" opacity=".5"/>
+     <circle cx="122" cy="234" r="10" fill="${G}" opacity=".5"/>`,
+
+    // 9 — Benin City & Abuja: two city circles + connection
+    `<circle cx="88" cy="195" r="78" fill="${S}" stroke="${G}" stroke-width="4"/>
+     <circle cx="88" cy="195" r="62" fill="${G}" opacity=".18"/>
+     <circle cx="88" cy="195" r="22" fill="${G}"/>
+     <circle cx="88" cy="188" r="11" fill="${W}"/>
+     <line x1="88" y1="209" x2="88" y2="224" stroke="${G}" stroke-width="5" stroke-linecap="round"/>
+     <text x="88" y="262" text-anchor="middle" font-size="17" font-weight="800" fill="${D}" font-family="Inter,sans-serif">Benin City</text>
+     <path d="M168 195 Q200 155 230 130" stroke="${G}" stroke-width="3.5" stroke-dasharray="8,6" stroke-linecap="round"/>
+     <circle cx="118" cy="175" r="6" fill="${G}"/>
+     <circle cx="150" cy="155" r="6" fill="${G}"/>
+     <circle cx="182" cy="140" r="6" fill="${G}"/>
+     <circle cx="232" cy="118" r="68" fill="${S}" stroke="${G}" stroke-width="4"/>
+     <circle cx="232" cy="118" r="52" fill="${G}" opacity=".18"/>
+     <circle cx="232" cy="118" r="20" fill="${D}"/>
+     <circle cx="232" cy="112" r="10" fill="${G}"/>
+     <line x1="232" y1="130" x2="232" y2="144" stroke="${D}" stroke-width="5" stroke-linecap="round"/>
+     <text x="232" y="182" text-anchor="middle" font-size="17" font-weight="800" fill="${D}" font-family="Inter,sans-serif">Abuja</text>
+     <circle cx="156" cy="38" r="28" fill="${G}"/>
+     <circle cx="156" cy="38" r="20" fill="#2aad7a"/>
+     <line x1="156" y1="20" x2="156" y2="12" stroke="${G}" stroke-width="4" stroke-linecap="round"/>
+     <line x1="174" y1="26" x2="180" y2="20" stroke="${G}" stroke-width="4" stroke-linecap="round"/>
+     <line x1="138" y1="26" x2="132" y2="20" stroke="${G}" stroke-width="4" stroke-linecap="round"/>
+     <text x="156" y="44" text-anchor="middle" font-size="20" font-weight="900" fill="${W}" font-family="Inter,sans-serif">🚀</text>`,
+
+  ];
+
+  document.getElementById('illus-svg').innerHTML = ILLUS[idx % ILLUS.length];
+  window.__ready = document.fonts.ready.then(() => true);
+</script>
 </body>
 </html>
