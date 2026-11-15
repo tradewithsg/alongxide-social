@@ -61,16 +61,24 @@ async function generateAudio(postIndex, duration = REEL_DURATION) {
   // Shimmer kicks in at 80% through the video (logo/brand reveal moment)
   const shimStart = (duration * 0.80).toFixed(1);
 
+  // ffmpeg aeval commas break filter chain parsing — use arithmetic min/max instead:
+  // min(a,b) = (a+b-abs(a-b))/2   max(a,b) = (a+b+abs(a-b))/2
+  const fmin = (a, b) => `(${a}+${b}-abs(${a}-${b}))/2`;
+  const fmax = (a, b) => `(${a}+${b}+abs(${a}-${b}))/2`;
+
   // Bass: low-pass brown noise with rhythmic amplitude modulation (the "heartbeat")
   const bassEnv    = `${(1 - p.pulseDep).toFixed(2)}+${p.pulseDep.toFixed(2)}*abs(sin(2*PI*${p.pulseHz}*t))`;
   const bassFilter = `[0]lowpass=f=${p.bassFreq},aeval=val(0)*(${bassEnv}),volume=${p.bassVol.toFixed(2)}[bass]`;
 
   // Mid tension: bandpass pink noise that builds from silence over first 7 seconds
-  const midFilter  = `[1]bandpass=f=${p.midFreq}:width_type=h:w=${p.midBw},aeval=val(0)*${p.midVol.toFixed(2)}*min(t/7,1)[mid]`;
+  const midRamp   = fmin('t/7', '1');
+  const midFilter = `[1]bandpass=f=${p.midFreq}:width_type=h:w=${p.midBw},aeval=val(0)*${p.midVol.toFixed(2)}*${midRamp}[mid]`;
 
   // Shimmer: narrow high-band white noise, emerges at logo reveal
-  const shimMax    = Math.min(p.shimFreq * 2, 20000);
-  const shimFilter = `[2]highpass=f=${p.shimFreq},lowpass=f=${shimMax},aeval=val(0)*${p.shimVol.toFixed(2)}*(0.08+0.92*min(max(t-${shimStart},0)/2,1))[shim]`;
+  const shimMax     = Math.min(p.shimFreq * 2, 20000);
+  const shimRaw     = fmax(`t-${shimStart}`, '0');
+  const shimClamped = fmin(`${shimRaw}/2`, '1');
+  const shimFilter  = `[2]highpass=f=${p.shimFreq},lowpass=f=${shimMax},aeval=val(0)*${p.shimVol.toFixed(2)}*(0.08+0.92*${shimClamped})[shim]`;
 
   const filterGraph = [
     bassFilter, midFilter, shimFilter,
