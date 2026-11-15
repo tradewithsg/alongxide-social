@@ -49,5 +49,6 @@ jobs:
         env:
           IG_USER_ID:      ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IMGBB_API_KEY:   ${{ secrets.IMGBB_API_KEY }}
           FORCE_POST:      ${{ github.event.inputs.force_post }}
         run: node main.mjs

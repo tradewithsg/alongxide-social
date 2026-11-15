@@ -5,8 +5,9 @@
 
 import { readFileSync } from 'node:fs';
 
-const IG_USER_ID   = process.env.IG_USER_ID;
-const ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN;
+const IG_USER_ID    = process.env.IG_USER_ID;
+const ACCESS_TOKEN  = process.env.IG_ACCESS_TOKEN;
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 // Business Manager System User tokens work with graph.facebook.com (Instagram Graph API)
 const API          = 'https://graph.facebook.com/v21.0';
 
@@ -67,6 +68,45 @@ async function publish(containerId) {
   const data = await res.json();
   if (!res.ok) throw Object.assign(new Error('Publish failed'), { data });
   return data;
+}
+
+// Upload a local image to imgbb and return the public URL
+async function uploadToImgbb(imagePath) {
+  if (!IMGBB_API_KEY) throw new Error('IMGBB_API_KEY env var is required for photo posts.');
+  const imageBase64 = readFileSync(imagePath).toString('base64');
+  const body = new URLSearchParams({ key: IMGBB_API_KEY, image: imageBase64 });
+  const res  = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body });
+  const data = await res.json();
+  if (!data.success) throw new Error(`imgbb upload failed: ${JSON.stringify(data.error)}`);
+  console.log(`  Uploaded to imgbb ✓  ${data.data.url}`);
+  return data.data.url;
+}
+
+// Post a static photo to Instagram
+export async function postPhoto(imagePath, caption) {
+  if (!IG_USER_ID || !ACCESS_TOKEN) {
+    throw new Error('IG_USER_ID and IG_ACCESS_TOKEN env vars are required.');
+  }
+
+  const imageUrl = await uploadToImgbb(imagePath);
+
+  const containerRes = await fetch(`${API}/${IG_USER_ID}/media`, {
+    method: 'POST',
+    body: new URLSearchParams({ image_url: imageUrl, caption, access_token: ACCESS_TOKEN }),
+  });
+  const container = await containerRes.json();
+  if (!containerRes.ok || !container.id) {
+    throw Object.assign(new Error('Photo container init failed'), { data: container });
+  }
+
+  const pubRes = await fetch(`${API}/${IG_USER_ID}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({ creation_id: container.id, access_token: ACCESS_TOKEN }),
+  });
+  const result = await pubRes.json();
+  if (!pubRes.ok) throw Object.assign(new Error('Photo publish failed'), { data: result });
+  console.log(`  Posted as Photo ✓  ID: ${result.id}`);
+  return result;
 }
 
 export async function postReel(videoPath, caption, trialFirst = true) {

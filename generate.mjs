@@ -16,6 +16,7 @@ const GENERATE_DIR = path.join(here, 'generate');
 const FRAMES_DIR  = path.join(here, '.frames');
 const OUTPUT_PATH = path.join(here, 'reel.mp4');
 const AUDIO_PATH  = path.join(here, 'audio.aac');
+const PHOTO_PATH  = path.join(here, 'photo.png');
 
 const FPS            = 30;
 const REEL_DURATION  = 15;
@@ -267,6 +268,31 @@ export async function generateFeature(featureTitle, featureDesc, postIndex = 0) 
   await stitchVideo();
   console.log('  Feature clip ready: reel.mp4');
   return OUTPUT_PATH;
+}
+
+// ── Exported: afternoon static photo (white bg, 1080×1350) ──────────────────
+export async function generatePhoto(featureTitle, featureDesc, daysUntilLaunch) {
+  const server  = await makeServer();
+  const { port } = server.address();
+  const browser = await makeBrowser();
+  const page    = await browser.newPage();
+  await page.setViewport({ width: 1080, height: 1350, deviceScaleFactor: 1 });
+
+  const params = new URLSearchParams({
+    title: featureTitle,
+    desc:  featureDesc,
+    days:  String(daysUntilLaunch),
+  });
+  await page.goto(`http://127.0.0.1:${port}/photo.html?${params}`, { waitUntil: 'networkidle0' });
+  await page.evaluate(() => window.__ready);
+  await new Promise(r => setTimeout(r, 1500));
+
+  await page.screenshot({ path: PHOTO_PATH, omitBackground: false, timeout: 60_000 });
+  await browser.close();
+  server.close();
+
+  console.log('  Photo ready: photo.png');
+  return PHOTO_PATH;
 }
 
 function runFfmpeg(args) {

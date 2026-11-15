@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1080px;
+      height: 1350px;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Green header band ── */
+    #header {
+      background: #3DCB92;
+      padding: 52px 80px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #logo {
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.03em;
+    }
+    #logo .dot { color: rgba(255,255,255,.55); }
+    #header-tag {
+      font-size: 18px;
+      font-weight: 700;
+      color: rgba(255,255,255,.75);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    /* ── Main content ── */
+    #body {
+      padding: 80px 80px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #spotlight-label {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .26em;
+      color: #3DCB92;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #spotlight-label::before {
+      content: '';
+      display: block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #3DCB92;
+      flex-shrink: 0;
+    }
+
+    #feature-title {
+      font-size: 94px;
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -.03em;
+      color: #0a0a0a;
+      white-space: pre-line;
+      margin-bottom: 44px;
+    }
+
+    #accent-bar {
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #3DCB92 0%, rgba(61,203,146,.12) 100%);
+      border-radius: 3px;
+      margin-bottom: 44px;
+    }
+
+    #feature-desc {
+      font-size: 36px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: #2a2a2a;
+      margin-bottom: 60px;
+    }
+
+    /* ── Benefit pills ── */
+    #pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 999px;
+      border: 2px solid rgba(61,203,146,.30);
+      background: rgba(61,203,146,.06);
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .pill-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #3DCB92;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer countdown ── */
+    #footer {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: #05110C;
+      padding: 44px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #countdown-block {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    #count-num {
+      font-size: 72px;
+      font-weight: 900;
+      color: #3DCB92;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+    #count-label {
+      font-size: 22px;
+      font-weight: 600;
+      color: rgba(255,255,255,.60);
+      letter-spacing: .04em;
+    }
+    #footer-right {
+      text-align: right;
+    }
+    #footer-brand {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.02em;
+    }
+    #footer-brand .x { color: #3DCB92; }
+    #footer-sub {
+      font-size: 17px;
+      font-weight: 400;
+      color: rgba(255,255,255,.40);
+      margin-top: 6px;
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <div id="logo">Along<span class="dot">X</span>ide</div>
+    <div id="header-tag">Feature Spotlight</div>
+  </div>
+
+  <div id="body">
+    <div id="spotlight-label">What we built for you</div>
+    <div id="feature-title">FEATURE_TITLE</div>
+    <div id="accent-bar"></div>
+    <div id="feature-desc">FEATURE_DESC</div>
+    <div id="pills">
+      <div class="pill"><div class="pill-dot"></div>Benin City</div>
+      <div class="pill"><div class="pill-dot"></div>Abuja</div>
+      <div class="pill"><div class="pill-dot"></div>Launching Dec 4</div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <div id="countdown-block">
+      <div id="count-num">19</div>
+      <div id="count-label">days to go</div>
+    </div>
+    <div id="footer-right">
+      <div id="footer-brand">Along<span class="x">X</span>ide</div>
+      <div id="footer-sub">alongxide.com</div>
+    </div>
+  </div>
+
+  <script>
+    const q = new URLSearchParams(location.search);
+    const featureTitle = q.get('title') || 'Feature Title';
+    const featureDesc  = q.get('desc')  || 'Feature description goes here.';
+    const daysCount    = q.get('days')  || '19';
+
+    document.getElementById('feature-title').textContent = featureTitle;
+    document.getElementById('feature-desc').textContent  = featureDesc;
+    document.getElementById('count-num').textContent     = daysCount;
+
+    // Auto-size title
+    const titleLen = featureTitle.replace(/\n/g, '').length;
+    document.getElementById('feature-title').style.fontSize =
+      (titleLen < 20 ? 94 : titleLen < 30 ? 80 : 68) + 'px';
+
+    window.__ready = document.fonts.ready.then(() => true);
+  </script>
+</body>
+</html>

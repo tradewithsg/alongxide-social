@@ -5,8 +5,8 @@
  * Run by GitHub Actions at 4 slots per hour-window; 3 of 4 runs exit instantly.
  */
 
-import { generateReel, generateFeature } from './generate.mjs';
-import { postReel }                      from './instagram.mjs';
+import { generateReel, generatePhoto } from './generate.mjs';
+import { postReel, postPhoto }         from './instagram.mjs';
 import { PROBLEMS, SOLUTIONS, FEATURES } from './generate/problems.mjs';
 
 const LAUNCH_DATE = new Date('2026-12-04T00:00:00Z');
@@ -81,7 +81,7 @@ async function main() {
     console.log('\n[2/2] Posting as Trial Reel...');
     await postReel(videoPath, caption, true);
 
-  // ── Noon: 11:00-11:45 UTC (12:00-12:45 PM WAT) → Feature Clip ──────────
+  // ── Noon: 11:00-11:45 UTC (12:00-12:45 PM WAT) → Feature Photo ─────────
   } else if (hour === 11) {
     if (!force && !isMySlot('noon')) { console.log('Not the noon slot today. Exiting.'); return; }
 
@@ -92,15 +92,15 @@ async function main() {
       .replace('{desc}', feature.desc)
       .replace('{days}', days);
 
-    console.log('=== AlongXide — Noon Feature Clip ===');
+    console.log('=== AlongXide — Noon Feature Photo ===');
     console.log(`Days until launch : ${days}`);
     console.log(`Feature           : ${feature.title.replace('\n', ' ')}`);
 
-    console.log('\n[1/2] Generating feature clip...');
-    const videoPath = await generateFeature(feature.title, feature.desc, dss);
+    console.log('\n[1/2] Generating photo...');
+    const photoPath = await generatePhoto(feature.title, feature.desc, days);
 
-    console.log('\n[2/2] Posting feature clip...');
-    await postReel(videoPath, caption, false);
+    console.log('\n[2/2] Posting as photo...');
+    await postPhoto(photoPath, caption);
 
   // ── Evening: 15:00-15:45 UTC (4:00-4:45 PM WAT) → Normal Reel ──────────
   } else if (hour === 15) {
