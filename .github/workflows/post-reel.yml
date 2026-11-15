@@ -45,11 +45,42 @@ jobs:
       - name: Install ffmpeg and aubio
         run: sudo apt-get install -y ffmpeg aubio-tools
 
+      - name: Refresh TikTok access token
+        id: tiktok_token
+        env:
+          GH_TOKEN:             ${{ secrets.GH_PAT }}
+          TIKTOK_CLIENT_KEY:    ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+        run: |
+          if [ -z "$TIKTOK_CLIENT_KEY" ]; then
+            echo "TikTok not configured — skipping token refresh"
+            exit 0
+          fi
+          RESP=$(curl -sf -X POST "https://open.tiktokapis.com/v2/oauth/token/" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_key=$TIKTOK_CLIENT_KEY&client_secret=$TIKTOK_CLIENT_SECRET&grant_type=refresh_token&refresh_token=$TIKTOK_REFRESH_TOKEN" \
+            || echo '{}')
+          ACCESS=$(printf '%s' "$RESP" | node -e "let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{ try{process.stdout.write(JSON.parse(d).access_token||'')}catch(e){} })")
+          NEWREF=$(printf '%s' "$RESP" | node -e "let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{ try{process.stdout.write(JSON.parse(d).refresh_token||'')}catch(e){} })")
+          if [ -n "$ACCESS" ]; then
+            echo "TIKTOK_ACCESS_TOKEN=$ACCESS" >> "$GITHUB_OUTPUT"
+            echo "TikTok token refreshed ✓"
+            if [ -n "$NEWREF" ] && [ -n "$GH_TOKEN" ]; then
+              gh secret set TIKTOK_REFRESH_TOKEN --body "$NEWREF"
+              echo "TikTok refresh token rotated ✓"
+            fi
+          else
+            echo "TikTok token refresh failed — TikTok posts will be skipped this run"
+          fi
+
       - name: Generate and post reel
         env:
-          IG_USER_ID:      ${{ secrets.IG_USER_ID }}
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          IMGBB_API_KEY:   ${{ secrets.IMGBB_API_KEY }}
-          FORCE_POST:      ${{ github.event.inputs.force_post }}
-          CRON_SCHEDULE:   ${{ github.event.schedule }}
+          IG_USER_ID:           ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN:      ${{ secrets.IG_ACCESS_TOKEN }}
+          IMGBB_API_KEY:        ${{ secrets.IMGBB_API_KEY }}
+          FB_PAGE_ID:           ${{ secrets.FB_PAGE_ID }}
+          TIKTOK_ACCESS_TOKEN:  ${{ steps.tiktok_token.outputs.TIKTOK_ACCESS_TOKEN }}
+          FORCE_POST:           ${{ github.event.inputs.force_post }}
+          CRON_SCHEDULE:        ${{ github.event.schedule }}
         run: node main.mjs

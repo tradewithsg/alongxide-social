@@ -70,8 +70,8 @@ async function publish(containerId) {
   return data;
 }
 
-// Upload a local image to imgbb and return the public URL
-async function uploadToImgbb(imagePath) {
+// Upload a local image to imgbb and return the public URL (exported so other platforms can reuse it)
+export async function uploadToImgbb(imagePath) {
   if (!IMGBB_API_KEY) throw new Error('IMGBB_API_KEY env var is required for photo posts.');
   const imageBase64 = readFileSync(imagePath).toString('base64');
   const body = new URLSearchParams({ key: IMGBB_API_KEY, image: imageBase64 });
@@ -82,7 +82,30 @@ async function uploadToImgbb(imagePath) {
   return data.data.url;
 }
 
-// Post a static photo to Instagram
+// Post a photo to Instagram using a pre-uploaded public URL (used when sharing URL across platforms)
+export async function postPhotoByUrl(imageUrl, caption) {
+  if (!IG_USER_ID || !ACCESS_TOKEN) {
+    throw new Error('IG_USER_ID and IG_ACCESS_TOKEN env vars are required.');
+  }
+  const containerRes = await fetch(`${API}/${IG_USER_ID}/media`, {
+    method: 'POST',
+    body: new URLSearchParams({ image_url: imageUrl, caption, access_token: ACCESS_TOKEN }),
+  });
+  const container = await containerRes.json();
+  if (!containerRes.ok || !container.id) {
+    throw Object.assign(new Error('Photo container init failed'), { data: container });
+  }
+  const pubRes = await fetch(`${API}/${IG_USER_ID}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({ creation_id: container.id, access_token: ACCESS_TOKEN }),
+  });
+  const result = await pubRes.json();
+  if (!pubRes.ok) throw Object.assign(new Error('Photo publish failed'), { data: result });
+  console.log(`  Instagram: Posted Photo ✓  ID: ${result.id}`);
+  return result;
+}
+
+// Post a static photo to Instagram (uploads to imgbb first)
 export async function postPhoto(imagePath, caption) {
   if (!IG_USER_ID || !ACCESS_TOKEN) {
     throw new Error('IG_USER_ID and IG_ACCESS_TOKEN env vars are required.');

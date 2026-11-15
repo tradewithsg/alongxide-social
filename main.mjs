@@ -5,9 +5,17 @@
  * Run by GitHub Actions at 4 slots per hour-window; 3 of 4 runs exit instantly.
  */
 
-import { generateReel, generatePhoto } from './generate.mjs';
-import { postReel, postPhoto }         from './instagram.mjs';
-import { PROBLEMS, SOLUTIONS, FEATURES } from './generate/problems.mjs';
+import { generateReel, generatePhoto }                       from './generate.mjs';
+import { postReel, postPhoto, postPhotoByUrl, uploadToImgbb } from './instagram.mjs';
+import { postFacebookReel, postFacebookPhoto }                from './facebook.mjs';
+import { postTikTokVideo, postTikTokPhoto }                   from './tiktok.mjs';
+import { PROBLEMS, SOLUTIONS, FEATURES }                      from './generate/problems.mjs';
+
+function logPlatformResults(results, platforms) {
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') console.error(`  ❌ ${platforms[i]}: ${r.reason?.message || r.reason}`);
+  });
+}
 
 const LAUNCH_DATE = new Date('2026-12-04T00:00:00Z');
 const START_DATE  = new Date('2026-11-14T00:00:00Z');
@@ -94,8 +102,13 @@ async function main() {
     console.log('\n[1/2] Generating video...');
     const videoPath = await generateReel(problem, solution, days, postNum);
 
-    console.log('\n[2/2] Posting as Trial Reel...');
-    await postReel(videoPath, caption, true);
+    console.log('\n[2/2] Posting to all 3 platforms simultaneously...');
+    const results = await Promise.allSettled([
+      postReel(videoPath, caption, true),
+      postFacebookReel(videoPath, caption),
+      postTikTokVideo(videoPath, caption),
+    ]);
+    logPlatformResults(results, ['Instagram', 'Facebook', 'TikTok']);
 
   // ── Noon: 11:00-11:45 UTC (12:00-12:45 PM WAT) → Feature Photo ─────────
   } else if (hour === 11) {
@@ -115,8 +128,14 @@ async function main() {
     console.log('\n[1/2] Generating photo...');
     const photoPath = await generatePhoto(feature.title, feature.desc, days, dss % FEATURES.length);
 
-    console.log('\n[2/2] Posting as photo...');
-    await postPhoto(photoPath, caption);
+    console.log('\n[2/2] Posting to all 3 platforms simultaneously...');
+    const imgbbUrl  = await uploadToImgbb(photoPath);
+    const results   = await Promise.allSettled([
+      postPhotoByUrl(imgbbUrl, caption),
+      postFacebookPhoto(imgbbUrl, caption),
+      postTikTokPhoto(imgbbUrl, caption),
+    ]);
+    logPlatformResults(results, ['Instagram', 'Facebook', 'TikTok']);
 
   // ── Evening: 15:00-15:45 UTC (4:00-4:45 PM WAT) → Normal Reel ──────────
   } else if (hour === 15) {
@@ -139,8 +158,13 @@ async function main() {
     console.log('\n[1/2] Generating video...');
     const videoPath = await generateReel(problem, solution, days, postNum);
 
-    console.log('\n[2/2] Posting as Regular Reel...');
-    await postReel(videoPath, caption, false);
+    console.log('\n[2/2] Posting to all 3 platforms simultaneously...');
+    const results = await Promise.allSettled([
+      postReel(videoPath, caption, false),
+      postFacebookReel(videoPath, caption),
+      postTikTokVideo(videoPath, caption),
+    ]);
+    logPlatformResults(results, ['Instagram', 'Facebook', 'TikTok']);
 
   } else {
     console.log('Outside posting windows (7, 11, 15 UTC). Exiting.');
