@@ -46,14 +46,20 @@ function isMySlot(windowName) {
 }
 
 async function main() {
-  const now  = new Date();
-  const hour = now.getUTCHours();
+  const now   = new Date();
+  const force = (process.env.FORCE_POST || '').toLowerCase().trim();
+  const hour  = force === 'morning' ? 7
+              : force === 'noon'    ? 11
+              : force === 'evening' ? 15
+              : now.getUTCHours();
   const days = daysUntilLaunch();
   const dss  = daysSinceStart();
 
+  if (force) console.log(`⚡ Force mode: ${force} (testing only)`);
+
   // ── Morning: 7:00-7:45 UTC (8:00-8:45 AM WAT) → Trial Reel ─────────────
   if (hour === 7) {
-    if (!isMySlot('morning')) { console.log('Not the morning slot today. Exiting.'); return; }
+    if (!force && !isMySlot('morning')) { console.log('Not the morning slot today. Exiting.'); return; }
 
     const postNum = dss * 2;
     const problem  = PROBLEMS[postNum % PROBLEMS.length];
@@ -77,7 +83,7 @@ async function main() {
 
   // ── Noon: 11:00-11:45 UTC (12:00-12:45 PM WAT) → Feature Clip ──────────
   } else if (hour === 11) {
-    if (!isMySlot('noon')) { console.log('Not the noon slot today. Exiting.'); return; }
+    if (!force && !isMySlot('noon')) { console.log('Not the noon slot today. Exiting.'); return; }
 
     const feature = FEATURES[dss % FEATURES.length];
     const variant = dss % FEATURE_CAPTIONS.length;
@@ -98,7 +104,7 @@ async function main() {
 
   // ── Evening: 15:00-15:45 UTC (4:00-4:45 PM WAT) → Normal Reel ──────────
   } else if (hour === 15) {
-    if (!isMySlot('evening')) { console.log('Not the evening slot today. Exiting.'); return; }
+    if (!force && !isMySlot('evening')) { console.log('Not the evening slot today. Exiting.'); return; }
 
     const postNum  = dss * 2 + 1;
     const problem  = PROBLEMS[postNum % PROBLEMS.length];

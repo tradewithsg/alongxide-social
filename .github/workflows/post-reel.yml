@@ -19,6 +19,11 @@ on:
     - cron: '45 15 * * *'
   # Manual trigger for testing
   workflow_dispatch:
+    inputs:
+      force_post:
+        description: 'Force a post now (testing only) — morning|noon|evening'
+        required: false
+        default: ''
 
 jobs:
   post-reel:
@@ -44,4 +49,5 @@ jobs:
         env:
           IG_USER_ID:      ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          FORCE_POST:      ${{ github.event.inputs.force_post }}
         run: node main.mjs
