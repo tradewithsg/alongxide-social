@@ -1,0 +1,37 @@
+HOW TO ADD REAL CINEMATIC TRAILER SOUNDS
+========================================
+
+Drop audio files into this folder and the bot will use them automatically
+instead of the synthetic fallback. Files are picked by post index so each
+post rotates through a different sound.
+
+Supported formats: .mp3  .wav  .aac  .m4a  .ogg
+Name them anything — they're sorted alphabetically and rotated.
+
+RECOMMENDED FREE SOURCES (no account needed, free for commercial use):
+-----------------------------------------------------------------------
+
+1. MIXKIT.CO  →  https://mixkit.co/free-sound-effects/
+   Best category: "Cinematic" and "Impact & Transitions"
+   Specific sounds to search for:
+     - "epic trailer impact"
+     - "cinematic whoosh"
+     - "dramatic hit"
+     - "trailer bass"
+     - "action stinger"
+
+2. PIXABAY.COM  →  https://pixabay.com/sound-effects/
+   Search: "trailer", "cinematic impact", "epic whoosh"
+
+3. FREESOUND.ORG  →  https://freesound.org  (free account needed)
+   Search: "trailer impact", "cinematic stinger", "epic whoosh"
+   Filter: Creative Commons 0 license for safest commercial use
+
+TIPS:
+- Aim for 10-20 second clips (the bot loops/trims automatically)
+- Pick sounds with energy that builds — they sync well with the countdown
+- 7+ files = every post gets a different sound for a week before repeating
+- File size doesn't matter much; they're not stored in the video, just mixed in
+
+After adding files, push this folder to GitHub and the bot picks them up
+on the next run automatically.

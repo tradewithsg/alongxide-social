@@ -6,7 +6,7 @@
 
 import http from 'node:http';
 import path from 'node:path';
-import { mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import puppeteer from 'puppeteer';
@@ -22,6 +22,16 @@ const REEL_DURATION  = 15;
 const REEL_FRAMES    = FPS * REEL_DURATION;   // 450
 const FEAT_DURATION  = 5;
 const FEAT_FRAMES    = FPS * FEAT_DURATION;   // 150
+
+const SOUNDS_DIR = path.join(here, 'sounds');
+
+// Returns a real sound file path if sounds/ folder has audio files, otherwise null
+function pickSoundFile(postIndex) {
+  if (!existsSync(SOUNDS_DIR)) return null;
+  const files = readdirSync(SOUNDS_DIR).filter(f => /\.(mp3|wav|aac|m4a|ogg)$/i.test(f)).sort();
+  if (!files.length) return null;
+  return path.join(SOUNDS_DIR, files[postIndex % files.length]);
+}
 
 const MIME = {
   '.html': 'text/html',  '.js': 'text/javascript',  '.mjs': 'text/javascript',
@@ -55,6 +65,20 @@ const AUDIO_PATTERNS = [
 ];
 
 async function generateAudio(postIndex, duration = REEL_DURATION) {
+  // Use a real sound file from sounds/ if one exists (best quality)
+  const soundFile = pickSoundFile(postIndex);
+  if (soundFile) {
+    console.log(`  Using sound file: ${path.basename(soundFile)}`);
+    await runFfmpeg([
+      '-stream_loop', '-1', '-i', soundFile,
+      '-t', String(duration),
+      '-af', `afade=in:st=0:d=0.5,afade=out:st=${duration - 1.5}:d=1.5`,
+      '-ac', '2', '-c:a', 'aac', '-b:a', '128k', '-y', AUDIO_PATH,
+    ]);
+    return;
+  }
+
+  // Fallback: synthesize cinematic noise-based audio
   const p   = AUDIO_PATTERNS[postIndex % AUDIO_PATTERNS.length];
   const dur = duration + 1;
 

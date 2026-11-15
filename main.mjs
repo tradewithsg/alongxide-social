@@ -48,9 +48,9 @@ function isMySlot(windowName) {
 async function main() {
   const now   = new Date();
   const force = (process.env.FORCE_POST || '').toLowerCase().trim();
-  const hour  = force === 'morning' ? 7
-              : force === 'noon'    ? 11
-              : force === 'evening' ? 15
+  const hour  = force === 'morning'                           ? 7
+              : force === 'noon'                              ? 11
+              : (force === 'evening' || force === 'afternoon') ? 15
               : now.getUTCHours();
   const days = daysUntilLaunch();
   const dss  = daysSinceStart();
