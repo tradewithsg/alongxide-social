@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies (includes Chromium via Puppeteer)
         run: npm install
 
-      - name: Install ffmpeg
-        run: sudo apt-get install -y ffmpeg
+      - name: Install ffmpeg and aubio
+        run: sudo apt-get install -y ffmpeg aubio-tools
 
       - name: Generate and post reel
         env:

@@ -120,6 +120,32 @@ async function generateAudio(postIndex, duration = REEL_DURATION) {
   ]);
 }
 
+// Detect beat timestamps (seconds) from an audio file using aubio
+function detectBeats(audioPath) {
+  return new Promise((resolve) => {
+    const beats = [];
+    const proc  = spawn('aubiotrack', [audioPath]);
+    proc.stdout.on('data', data => {
+      data.toString().split('\n').forEach(line => {
+        const t = parseFloat(line.trim());
+        if (!isNaN(t) && t > 0) beats.push(t);
+      });
+    });
+    proc.on('close', () => resolve(beats));
+    proc.on('error', () => resolve([])); // aubio not installed — fallback
+  });
+}
+
+// Snap targetTime to nearest beat within windowSec; return targetTime if none found
+function snapToBeat(beats, targetTime, windowSec = 2.0) {
+  let best = null, bestDist = Infinity;
+  for (const b of beats) {
+    const dist = Math.abs(b - targetTime);
+    if (dist < bestDist && dist <= windowSec) { bestDist = dist; best = b; }
+  }
+  return best ?? targetTime;
+}
+
 function makeServer() {
   const server = http.createServer((req, res) => {
     const url  = decodeURIComponent(new URL(req.url, 'http://x').pathname);
@@ -183,10 +209,22 @@ export async function generateReel(problemText, solutionText, daysUntilLaunch, p
   const page    = await browser.newPage();
   await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
 
+  // Detect beats so transitions snap to the music
+  const soundFile = pickSoundFile(postIndex);
+  const beats     = soundFile ? await detectBeats(soundFile) : [];
+  if (beats.length) console.log(`  Detected ${beats.length} beats — syncing cuts to music`);
+
+  const T2 = snapToBeat(beats, 6.5,  2.0); // problem → solution
+  const T3 = snapToBeat(beats, 11.0, 2.0); // solution → countdown
+  const T4 = snapToBeat(beats, 13.0, 1.5); // brand in
+
   const params = new URLSearchParams({
     problem:  problemText,
     solution: solutionText,
     days:     String(daysUntilLaunch),
+    t2: T2.toFixed(2),
+    t3: T3.toFixed(2),
+    t4: T4.toFixed(2),
   });
   await page.goto(`http://127.0.0.1:${port}/?${params}`, { waitUntil: 'networkidle0' });
   await page.evaluate(() => window.__ready);
