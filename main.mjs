@@ -36,22 +36,38 @@ function daysSinceStart() {
 
 // Deterministic pseudo-random slot: each day picks a different 15-min slot (0-3)
 // within the posting window. Only the matching slot actually posts; others exit fast.
+// Uses the SCHEDULED minute (from CRON_SCHEDULE) so GitHub Actions delays don't break it.
 function isMySlot(windowName) {
   const dateStr = new Date().toISOString().slice(0, 10);
   const seed    = `${windowName}-${dateStr}`;
   const hash    = [...seed].reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
-  const preferredSlot  = Math.abs(hash) % 4;
-  const currentSlot    = Math.floor(new Date().getUTCMinutes() / 15);
+  const preferredSlot = Math.abs(hash) % 4;
+  const scheduled     = parseCronSchedule();
+  const slotMinute    = scheduled ? scheduled.minute : new Date().getUTCMinutes();
+  const currentSlot   = Math.floor(slotMinute / 15);
   return preferredSlot === currentSlot;
 }
 
+// Parse the scheduled cron expression GitHub passes as CRON_SCHEDULE env var.
+// e.g. "15 7 * * *" → { hour: 7, minute: 15 }
+// This lets us use the INTENDED fire time even when GitHub delays the run by hours.
+function parseCronSchedule() {
+  const s = (process.env.CRON_SCHEDULE || '').trim();
+  if (!s) return null;
+  const parts = s.split(/\s+/);
+  return { minute: parseInt(parts[0], 10), hour: parseInt(parts[1], 10) };
+}
+
 async function main() {
-  const now   = new Date();
-  const force = (process.env.FORCE_POST || '').toLowerCase().trim();
+  const now      = new Date();
+  const force    = (process.env.FORCE_POST || '').toLowerCase().trim();
+  const scheduled = parseCronSchedule();
   const hour  = force === 'morning'                        ? 7
               : (force === 'noon' || force === 'afternoon') ? 11
               : force === 'evening'                         ? 15
-              : now.getUTCHours();
+              : scheduled?.hour ?? now.getUTCHours();
+
+  if (scheduled) console.log(`Scheduled for ${scheduled.hour}:${String(scheduled.minute).padStart(2,'0')} UTC (actual run: ${now.getUTCHours()}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC)`);
   const days = daysUntilLaunch();
   const dss  = daysSinceStart();
 
