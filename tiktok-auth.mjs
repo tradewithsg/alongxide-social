@@ -11,13 +11,13 @@
 import { createInterface } from 'node:readline';
 
 // ── EDIT THESE ──────────────────────────────────────────────────────────────
-const CLIENT_KEY    = 'YOUR_CLIENT_KEY_HERE';
-const CLIENT_SECRET = 'YOUR_CLIENT_SECRET_HERE';
+const CLIENT_KEY    = 'sbawkrz5ifr6t26egw';
+const CLIENT_SECRET = '8ZrG9gbhmtL8OWo2455FczZRWIzscG0N';
 // ────────────────────────────────────────────────────────────────────────────
 
 // TikTok requires https:// — browser will show an error page but the URL bar
 // contains the auth code, which you paste back here.
-const REDIRECT_URI = 'https://localhost/';
+const REDIRECT_URI = 'https://tradewithsg.github.io/alongxide-social/callback';
 
 const authUrl = 'https://www.tiktok.com/v2/auth/authorize/?' + new URLSearchParams({
   client_key:    CLIENT_KEY,

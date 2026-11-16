@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlongXide — TikTok Authorization</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #05110C; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    h1 span { color: #3DCB92; }
+    .sub { color: rgba(255,255,255,.5); margin-bottom: 40px; font-size: 15px; }
+    .box { background: rgba(61,203,146,.08); border: 1.5px solid rgba(61,203,146,.3); border-radius: 16px; padding: 32px; max-width: 600px; width: 100%; }
+    .label { font-size: 12px; font-weight: 700; letter-spacing: .15em; color: #3DCB92; text-transform: uppercase; margin-bottom: 10px; }
+    .code { font-family: monospace; font-size: 14px; background: rgba(0,0,0,.4); padding: 14px 18px; border-radius: 8px; word-break: break-all; color: #8BEBC4; margin-bottom: 20px; }
+    button { background: #3DCB92; color: #05110C; border: none; padding: 14px 32px; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+    button:active { opacity: .8; }
+    .step { font-size: 14px; color: rgba(255,255,255,.45); margin-top: 24px; line-height: 1.7; }
+    .error { color: #ff6b6b; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <h1>Along<span>X</span>ide</h1>
+  <div class="sub">TikTok Authorization</div>
+
+  <div class="box" id="box">
+    <div id="content"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code   = params.get('code');
+    const error  = params.get('error');
+    const box    = document.getElementById('content');
+
+    if (error) {
+      box.innerHTML = `<div class="error">Authorization failed: ${error}</div>`;
+    } else if (code) {
+      box.innerHTML = `
+        <div class="label">Authorization code — copy this</div>
+        <div class="code" id="code">${code}</div>
+        <button onclick="copy()">Copy Code</button>
+        <div class="step">Paste this code into the terminal when prompted:<br><code>Paste the full URL from your browser here:</code><br><br>Paste the full URL from your address bar — the terminal script handles the rest.</div>
+      `;
+    } else {
+      box.innerHTML = `<div class="error">No authorization code found. Try the authorization flow again.</div>`;
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(location.href);
+      document.querySelector('button').textContent = 'Copied! Now paste the full URL in terminal';
+    }
+  </script>
+</body>
+</html>
