@@ -8,14 +8,16 @@
  *   3. Run:  node tiktok-auth.mjs
  */
 
-import http from 'node:http';
+import { createInterface } from 'node:readline';
 
 // ── EDIT THESE ──────────────────────────────────────────────────────────────
 const CLIENT_KEY    = 'YOUR_CLIENT_KEY_HERE';
 const CLIENT_SECRET = 'YOUR_CLIENT_SECRET_HERE';
 // ────────────────────────────────────────────────────────────────────────────
 
-const REDIRECT_URI = 'http://localhost:8080/callback';
+// TikTok requires https:// — browser will show an error page but the URL bar
+// contains the auth code, which you paste back here.
+const REDIRECT_URI = 'https://localhost/';
 
 const authUrl = 'https://www.tiktok.com/v2/auth/authorize/?' + new URLSearchParams({
   client_key:    CLIENT_KEY,
@@ -26,27 +28,29 @@ const authUrl = 'https://www.tiktok.com/v2/auth/authorize/?' + new URLSearchPara
 }).toString();
 
 console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-console.log('Open this URL in your browser and log in with your AlongXide TikTok:');
+console.log('STEP 1 — Open this URL in your browser and log in with AlongXide TikTok:');
 console.log('\n' + authUrl + '\n');
-console.log('Waiting for authorization (keep this terminal open)...');
+console.log('STEP 2 — After authorizing, your browser will show an error page.');
+console.log('         That is normal. Copy the FULL URL from the address bar.');
+console.log('         It will look like:  https://localhost/?code=XXXX&state=...');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-const server = http.createServer(async (req, res) => {
-  const url  = new URL(req.url, 'http://localhost:8080');
-  const code = url.searchParams.get('code');
-
+const rl = createInterface({ input: process.stdin, output: process.stdout });
+rl.question('Paste the full URL from your browser here: ', async (pastedUrl) => {
+  rl.close();
+  let code;
+  try {
+    code = new URL(pastedUrl).searchParams.get('code');
+  } catch {
+    console.error('Could not parse URL. Make sure you pasted the full address bar URL.');
+    process.exit(1);
+  }
   if (!code) {
-    res.writeHead(400);
-    res.end('No code received — close this and try again.');
-    return;
+    console.error('No "code" found in that URL. Try again from the beginning.');
+    process.exit(1);
   }
 
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end('<h2 style="font-family:sans-serif;color:green">Done! Check your terminal for the secrets to copy.</h2>');
-  server.close();
-
-  console.log('Code received. Exchanging for tokens...\n');
-
+  console.log('\nExchanging code for tokens...');
   const tokenRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -65,15 +69,11 @@ const server = http.createServer(async (req, res) => {
     process.exit(1);
   }
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('SUCCESS! Add these 3 values as GitHub Secrets:');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`TIKTOK_CLIENT_KEY    = ${CLIENT_KEY}`);
   console.log(`TIKTOK_CLIENT_SECRET = ${CLIENT_SECRET}`);
   console.log(`TIKTOK_REFRESH_TOKEN = ${data.refresh_token}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-});
-
-server.listen(8080, '127.0.0.1', () => {
-  console.log('Listening on http://localhost:8080/callback\n');
 });
