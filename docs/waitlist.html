@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join the Waitlist — AlongXide</title>
+  <meta name="description" content="AlongXide launches December 4th in Benin City and Abuja. The first 100 people on the waitlist get their first errand run FREE.">
+  <meta property="og:title" content="Be First. Get a Free Run. — AlongXide">
+  <meta property="og:description" content="We're launching December 4th. First 100 on the waitlist get a free errand run.">
+  <meta property="og:image" content="https://tradewithsg.github.io/alongxide-social/og.png">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green:   #05110C;
+      --mint:    #3DCB92;
+      --mint2:   #2fb87e;
+      --white:   #ffffff;
+      --muted:   rgba(255,255,255,0.55);
+      --card:    rgba(255,255,255,0.05);
+      --border:  rgba(255,255,255,0.12);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--green);
+      color: var(--white);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: -.02em; text-decoration: none; color: var(--white); }
+    .logo span { color: var(--mint); }
+    .launch-chip {
+      font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      background: rgba(61,203,146,.15); color: var(--mint); border: 1px solid rgba(61,203,146,.3);
+      padding: 4px 12px; border-radius: 999px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 24px 32px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; color: var(--mint);
+      background: rgba(61,203,146,.1); border: 1px solid rgba(61,203,146,.25);
+      padding: 6px 14px; border-radius: 999px; margin-bottom: 28px;
+    }
+    .badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: pulse 1.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    h1 {
+      font-size: clamp(38px, 10vw, 58px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      margin-bottom: 20px;
+    }
+    h1 em { color: var(--mint); font-style: normal; }
+
+    .sub {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 40px;
+      max-width: 420px;
+    }
+
+    /* ── FORM ── */
+    .form-wrap {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      margin-bottom: 24px;
+    }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 7px; letter-spacing: .02em; }
+    .field input, .field select {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--white);
+      font-size: 16px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .field select { cursor: pointer; }
+    .field input::placeholder { color: rgba(255,255,255,0.3); }
+    .field input:focus, .field select:focus { border-color: var(--mint); }
+    .field select option { background: #0d2018; color: #fff; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn {
+      width: 100%;
+      background: var(--mint);
+      color: #05110C;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      padding: 17px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .2s, transform .1s;
+      letter-spacing: -.01em;
+    }
+    .btn:hover { background: var(--mint2); }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── SOCIAL PROOF ── */
+    .proof {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .proof strong { color: var(--white); }
+    .avatars { display: flex; }
+    .avatars span {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--green);
+      background: var(--mint);
+      margin-left: -8px;
+      font-size: 11px; font-weight: 700; color: #05110C;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatars span:first-child { margin-left: 0; }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto 60px;
+      padding: 0 24px;
+    }
+    .steps h2 { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 20px; }
+    .step-list { display: flex; flex-direction: column; gap: 12px; }
+    .step {
+      display: flex; align-items: flex-start; gap: 16px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(61,203,146,.15); color: var(--mint);
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-text strong { display: block; font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .step-text span { font-size: 14px; color: var(--muted); }
+
+    /* ── THANK YOU ── */
+    #thankyou {
+      display: none;
+      text-align: center;
+      padding: 32px 20px;
+    }
+    #thankyou .tick {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(61,203,146,.15); border: 2px solid var(--mint);
+      margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    #thankyou h2 { font-size: 26px; font-weight: 900; margin-bottom: 10px; }
+    #thankyou p { color: var(--muted); font-size: 16px; line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px 24px 32px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
+    footer a { color: rgba(255,255,255,.4); text-decoration: none; }
+    footer a:hover { color: var(--mint); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="#">Along<span>X</span>ide</a>
+    <span class="launch-chip">Dec 4 Launch</span>
+  </nav>
+
+  <main>
+    <section class="hero">
+
+      <div class="badge">Launching December 4th, 2026</div>
+
+      <h1>Be first.<br><em>Get a free run.</em></h1>
+
+      <p class="sub">
+        AlongXide is launching in Benin City and Abuja on December 4th.
+        The first <strong>100 people</strong> on the waitlist get their first errand run <strong>completely free</strong>.
+      </p>
+
+      <!-- FORM -->
+      <div class="form-wrap" id="formwrap">
+        <form id="waitlist-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+
+          <div class="field">
+            <label for="name">YOUR NAME</label>
+            <input id="name" name="name" type="text" placeholder="e.g. Chisom Okafor" required autocomplete="name">
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="phone">WHATSAPP NUMBER</label>
+              <input id="phone" name="phone" type="tel" placeholder="080XXXXXXXX" required autocomplete="tel">
+            </div>
+            <div class="field">
+              <label for="city">YOUR CITY</label>
+              <select id="city" name="city" required>
+                <option value="" disabled selected>Select city</option>
+                <option value="Benin City">Benin City</option>
+                <option value="Abuja">Abuja</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="need">WHAT DO YOU NEED MOST?</label>
+            <select id="need" name="need">
+              <option value="" disabled selected>Pick one</option>
+              <option value="Market runs">Market &amp; grocery runs</option>
+              <option value="Pharmacy">Pharmacy &amp; medicine pickup</option>
+              <option value="Office errands">Office errands during work hours</option>
+              <option value="General errands">General errands</option>
+            </select>
+          </div>
+
+          <button class="btn" type="submit" id="submit-btn">
+            Join the Waitlist →
+          </button>
+        </form>
+
+        <!-- Thank you (shown after submit) -->
+        <div id="thankyou">
+          <div class="tick">✓</div>
+          <h2>You're on the list.</h2>
+          <p>We'll WhatsApp you on December 4th with your free run code.<br>Spread the word — the more people join, the bigger the launch.</p>
+        </div>
+      </div>
+
+      <!-- Social proof -->
+      <div class="proof">
+        <div class="avatars">
+          <span>A</span><span>K</span><span>E</span><span>O</span>
+        </div>
+        <span>People in Benin City &amp; Abuja are already waiting</span>
+      </div>
+
+    </section>
+
+    <!-- How it works -->
+    <section class="steps">
+      <h2>How AlongXide works</h2>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <strong>Tell us what you need</strong>
+            <span>Market item, pharmacy run, office errand — anything you can't go get yourself.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <strong>We connect you with a runner</strong>
+            <span>A verified, trusted runner near you gets assigned. They send a photo before buying — you approve.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <strong>Pay on delivery</strong>
+            <span>Your runner delivers. You pay only when it's in your hands. Zero upfront risk.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2026 AlongXide &nbsp;·&nbsp;
+    <a href="privacy.html">Privacy</a> &nbsp;·&nbsp;
+    <a href="terms.html">Terms</a>
+  </footer>
+
+  <script>
+    const form   = document.getElementById('waitlist-form');
+    const btn    = document.getElementById('submit-btn');
+    const thanks = document.getElementById('thankyou');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Joining…';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' },
+        });
+
+        if (res.ok) {
+          form.style.display = 'none';
+          thanks.style.display = 'block';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Try again';
+          alert('Something went wrong. Please try again.');
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Try again';
+        alert('No internet connection. Please try again.');
+      }
+    });
+  </script>
+
+</body>
+</html>
